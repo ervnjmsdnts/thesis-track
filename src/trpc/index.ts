@@ -2,6 +2,7 @@ import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { publicProcedure, router } from './trpc';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db';
+import { User } from '@prisma/client';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -25,6 +26,16 @@ export const appRouter = router({
     }
 
     return { success: true };
+  }),
+  getUsers: publicProcedure.query(async () => {
+    const dbUsers = (await db.user.findMany()) as User[];
+
+    return dbUsers;
+  }),
+  getGroups: publicProcedure.query(async () => {
+    const dbGroups = await db.group.findMany({ include: { users: true } });
+
+    return dbGroups;
   }),
 });
 

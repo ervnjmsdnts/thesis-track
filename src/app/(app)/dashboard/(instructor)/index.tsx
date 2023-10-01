@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CollectionMilestone from './collection-milestone';
 import Groups from './groups';
+import PendingApprovals from './pending-approvals';
 
 export default function InstructorDashboard() {
   return (
@@ -31,7 +32,9 @@ export default function InstructorDashboard() {
             <CardHeader>
               <CardTitle className='text-lg'>Pending Approvals</CardTitle>
             </CardHeader>
-            <CardContent className='flex flex-col gap-2 overflow-y-auto h-0 flex-grow'></CardContent>
+            <CardContent className='flex flex-col flex-grow'>
+              <PendingApprovals />
+            </CardContent>
           </Card>
         </div>
       </div>

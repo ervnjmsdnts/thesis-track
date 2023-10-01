@@ -10,10 +10,6 @@ import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/server';
 import { User } from '@prisma/client';
 
 export default function AppNavbar({ user }: { user: User }) {
-  const getUserInitials = (firstName: string, lastName: string) => {
-    return `${firstName[0]}${lastName[0]}`;
-  };
-
   return (
     <nav className='flex border-b p-4 justify-between items-center'>
       <h1 className='font-bold text-2xl text-primary'>ThesisTrack</h1>
@@ -22,7 +18,8 @@ export default function AppNavbar({ user }: { user: User }) {
           <Avatar>
             <AvatarImage src={user?.picture as string | undefined} />
             <AvatarFallback>
-              {getUserInitials(user.firstName, user.lastName)}
+              {user.firstName[0]}
+              {user.lastName[0]}
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>

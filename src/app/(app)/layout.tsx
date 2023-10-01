@@ -3,9 +3,9 @@ import InstructorSidebar from '@/components/instructor-sidebar';
 import { db } from '@/db';
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { redirect } from 'next/navigation';
-import InstructorDashboard from './(instructor)';
+import { ReactNode } from 'react';
 
-export default async function Dashboard() {
+export default async function AppLayout({ children }: { children: ReactNode }) {
   const { getUser } = getKindeServerSession();
   const user = getUser();
 
@@ -24,9 +24,7 @@ export default async function Dashboard() {
   return (
     <div className='flex flex-col h-full'>
       <AppNavbar user={dbUser} />
-      <InstructorSidebar>
-        <InstructorDashboard />
-      </InstructorSidebar>
+      <InstructorSidebar>{children}</InstructorSidebar>
     </div>
   );
 }
