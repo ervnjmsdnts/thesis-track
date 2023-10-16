@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/popover';
 import UserInfo from '@/components/user-info';
 import { User } from '@prisma/client';
+import { Loader2 } from 'lucide-react';
 
 function MilestoneBar() {
   return (
@@ -19,7 +20,7 @@ function MilestoneBar() {
   );
 }
 
-function Group({ users, title }: { users: any[]; title: string }) {
+function Group({ users, title }: { users: User[]; title: string }) {
   const maxItems = 4;
   return (
     <div className='border p-3 rounded-lg'>
@@ -72,18 +73,30 @@ function Group({ users, title }: { users: any[]; title: string }) {
 }
 
 export default function Groups() {
-  const { data: groups } = trpc.getGroups.useQuery();
+  const { data: groups, isLoading } = trpc.getGroups.useQuery();
 
   return (
     <div className='flex flex-col h-0 overflow-y-auto flex-grow gap-4'>
-      {groups ? (
+      {groups && groups.length !== 0 ? (
         <>
           {groups.map((group) => (
-            <Group key={group.id} title={group.title} users={group.users} />
+            <Group
+              key={group.id}
+              title={group.title}
+              users={group.users.map((user) => ({
+                ...user,
+                createdAt: new Date(user.createdAt),
+                updatedAt: new Date(user.updatedAt),
+              }))}
+            />
           ))}
         </>
+      ) : isLoading ? (
+        <div className='flex items-center justify-center'>
+          <Loader2 className='w-8 h-8 animate-spin' />
+        </div>
       ) : (
-        <p></p>
+        <div>No content</div>
       )}
     </div>
   );

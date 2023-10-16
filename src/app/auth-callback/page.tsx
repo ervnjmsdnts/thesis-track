@@ -11,9 +11,12 @@ export default function AuthCallBack() {
   const origin = searchParams.get('origin');
 
   const { data, isLoading } = trpc.authCallback.useQuery(undefined, {
-    onSuccess: ({ success }) => {
+    onSuccess: ({ needsRole, success }) => {
       if (success) {
         router.push(origin ? `/${origin}` : '/dashboard');
+      }
+      if (needsRole) {
+        router.push(origin ? `/${origin}` : '/choose-role');
       }
     },
     onError: (err) => {

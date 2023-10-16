@@ -15,17 +15,25 @@ enum Role {
 }
 
 model User {
-  id        String  @id @unique
-  email     String  @unique
+  id        String   @id @unique
+  email     String   @unique
   firstName String
   lastName  String
   picture   String?
-  role      Role    @default(STUDENT)
+  role      Role?
+  section   Section? @relation(fields: [sectionId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Group     Group?   @relation(fields: [groupId], references: [id])
   groupId   String?
+  sectionId String?
+}
+
+model Section {
+  id   String @id @unique @default(cuid())
+  name String @unique
+  User User[]
 }
 
 model Group {

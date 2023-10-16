@@ -6,12 +6,12 @@ function Approval() {
     <div className='border p-3 rounded-lg'>
       <div className='flex items-center justify-between'>
         <div>
-          <h4 className='font-medium'>Thesis Title</h4>
+          <h4 className='font-medium truncate'>Thesis Title</h4>
           <p className='text-zinc-500 text-xs font-medium'>
             Submitted: 02-01-2023
           </p>
         </div>
-        <Button asChild variant='outline'>
+        <Button asChild>
           <Link href='/'>View</Link>
         </Button>
       </div>

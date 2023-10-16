@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     },
   });
 
-  if (!dbUser) redirect('/auth-callback?origin=dashboard');
+  if (!dbUser) redirect('/auth-callback');
 
   const role = dbUser.role;
 

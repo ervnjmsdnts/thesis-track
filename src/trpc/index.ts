@@ -1,8 +1,9 @@
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import { publicProcedure, router } from './trpc';
+import { privateProcedure, publicProcedure, router } from './trpc';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db';
 import { User } from '@prisma/client';
+import { z } from 'zod';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -23,9 +24,11 @@ export const appRouter = router({
           picture: user.picture,
         },
       });
+
+      return { needsRole: true, success: false };
     }
 
-    return { success: true };
+    return { success: true, needsRole: false };
   }),
   getUsers: publicProcedure.query(async () => {
     const dbUsers = (await db.user.findMany()) as User[];
@@ -37,6 +40,18 @@ export const appRouter = router({
 
     return dbGroups;
   }),
+  setUserRole: privateProcedure
+    .input(
+      z.object({
+        role: z.enum(['STUDENT', 'ADVISER', 'INSTRUCTOR']),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      await db.user.update({
+        where: { id: ctx.user.id as unknown as string | undefined },
+        data: { role: input.role },
+      });
+    }),
 });
 
 export type AppRouter = typeof appRouter;
