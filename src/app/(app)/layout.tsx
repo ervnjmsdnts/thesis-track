@@ -17,7 +17,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     },
   });
 
-  if (!dbUser) redirect('/auth-callback');
+  if (!dbUser) return redirect('/auth-callback');
+  if (dbUser.role === 'STUDENT' && !dbUser.sectionId)
+    return redirect('/choose-section');
 
   const role = dbUser.role;
 

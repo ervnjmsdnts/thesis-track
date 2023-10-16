@@ -52,6 +52,19 @@ export const appRouter = router({
         data: { role: input.role },
       });
     }),
+  getSections: publicProcedure.query(async () => {
+    const dbSections = await db.section.findMany();
+
+    return dbSections;
+  }),
+  setUserSection: privateProcedure
+    .input(z.object({ section: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await db.user.update({
+        where: { id: ctx.user.id as unknown as string | undefined },
+        data: { sectionId: input.section },
+      });
+    }),
 });
 
 export type AppRouter = typeof appRouter;
