@@ -7,10 +7,10 @@ import {
 } from '@/components/ui/popover';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { User } from '@prisma/client';
+import { Group, User } from '@prisma/client';
 import UserInfo from '@/components/user-info';
 
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<Group & { members: User[] }>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
@@ -25,7 +25,7 @@ export const columns: ColumnDef<any>[] = [
     ),
     cell: ({ row }) => {
       const maxUsers = 4;
-      const users = row.original.users as User[];
+      const users = row.original.members;
 
       return (
         <Popover>

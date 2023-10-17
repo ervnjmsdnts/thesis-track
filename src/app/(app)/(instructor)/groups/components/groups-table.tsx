@@ -9,5 +9,19 @@ export default function GroupsTable() {
 
   if (!data) return;
 
-  return <DataTable data={data} columns={columns} />;
+  return (
+    <DataTable
+      data={data.map((d) => ({
+        ...d,
+        createdAt: new Date(d.createdAt),
+        updatedAt: new Date(d.updatedAt),
+        members: d.members.map((m) => ({
+          ...m,
+          createdAt: new Date(m.createdAt),
+          updatedAt: new Date(m.updatedAt),
+        })),
+      }))}
+      columns={columns}
+    />
+  );
 }

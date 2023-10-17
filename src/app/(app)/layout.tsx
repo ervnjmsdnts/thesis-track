@@ -15,11 +15,14 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     where: {
       id: user.id,
     },
+    include: { group: true },
   });
 
   if (!dbUser) return redirect('/auth-callback');
-  if (dbUser.role === 'STUDENT' && !dbUser.sectionId)
-    return redirect('/choose-section');
+  if (dbUser.role === 'STUDENT') {
+    if (!dbUser.sectionId) return redirect('/choose-section');
+    if (dbUser.group.length === 0) return redirect('/assign-group');
+  }
 
   const role = dbUser.role;
 

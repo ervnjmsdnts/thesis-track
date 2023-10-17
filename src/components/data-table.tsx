@@ -4,6 +4,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
+  Table as TableType,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -14,7 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { ReactNode, useState } from 'react';
+import { ComponentType, ReactNode, useState } from 'react';
 import {
   TableHeader,
   TableRow,
@@ -23,16 +24,12 @@ import {
   TableCell,
   Table,
 } from './ui/table';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from './ui/collapsible';
+import { Collapsible, CollapsibleContent } from './ui/collapsible';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  Toolbar?: ReactNode;
+  Toolbar?: ComponentType<{ table: TableType<TData> }>;
   Pagination?: ReactNode;
   Expandable?: ReactNode;
 }
@@ -44,33 +41,36 @@ export default function DataTable<TData, TValue>({
   Pagination,
   Expandable,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
+  const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
     state: {
       sorting,
-      columnFilters,
       columnVisibility,
+      rowSelection,
+      columnFilters,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
   return (
     <div className='space-y-4 flex flex-col h-full'>
-      {Toolbar}
+      {Toolbar && <Toolbar table={table} />}
       <div className='rounded-md flex-grow border'>
         <Table>
           <TableHeader>

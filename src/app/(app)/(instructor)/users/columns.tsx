@@ -2,22 +2,15 @@
 
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { capitalizeFirstLetter } from '@/helpers';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
 import { format } from 'date-fns';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Section, User } from '@prisma/client';
 
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<User & { section: Section | null }>[] = [
   {
-    accessorKey: 'name',
+    id: 'name',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Name' />
     ),
@@ -36,6 +29,12 @@ export const columns: ColumnDef<any>[] = [
           <p>{name}</p>
         </div>
       );
+    },
+    filterFn: (row, _, value) => {
+      const name =
+        `${row.original.firstName} ${row.original.lastName}`.toLowerCase();
+
+      return name.includes(value.toLowerCase());
     },
   },
   {
@@ -67,39 +66,22 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
+    accessorKey: 'section.name',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Section' />
+    ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
     accessorKey: 'createdAt',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Date Added' />
     ),
     cell: ({ row }) => {
-      console.log({ row });
       const date = format(new Date(row.original.createdAt), 'MMM dd, yyyy');
       return date;
-    },
-  },
-  {
-    id: 'action',
-    enableSorting: false,
-    enableHiding: false,
-    cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>Open menu</span>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem className='flex flex-row gap-2 items-center'>
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem className='flex flex-row gap-2 items-center'>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
     },
   },
 ];

@@ -82,11 +82,11 @@ export default function Groups() {
           {groups.map((group) => (
             <Group
               key={group.id}
-              title={group.title}
-              users={group.users.map((user) => ({
-                ...user,
-                createdAt: new Date(user.createdAt),
-                updatedAt: new Date(user.updatedAt),
+              title={group.title!}
+              users={group.members.map((member) => ({
+                ...member,
+                createdAt: new Date(member.createdAt),
+                updatedAt: new Date(member.updatedAt),
               }))}
             />
           ))}
