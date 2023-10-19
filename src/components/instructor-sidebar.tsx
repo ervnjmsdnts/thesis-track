@@ -1,8 +1,11 @@
 'use client';
 
 import {
+  CalendarCheck,
   Contact2,
+  FileCheck2,
   LayoutDashboard,
+  LucideIcon,
   MessagesSquare,
   Users2,
 } from 'lucide-react';
@@ -10,27 +13,49 @@ import { ReactNode } from 'react';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Role, User } from '@prisma/client';
 
-const routes = [
+const routes: {
+  href: string;
+  label: string;
+  Icon: LucideIcon;
+  role: Role[];
+}[] = [
   {
     href: '/dashboard',
     label: 'Dashboard',
     Icon: LayoutDashboard,
+    role: ['ADVISER', 'INSTRUCTOR', 'STUDENT'],
   },
   {
     href: '/chat',
     label: 'Chat',
     Icon: MessagesSquare,
+    role: ['ADVISER', 'INSTRUCTOR', 'STUDENT'],
   },
   {
     href: '/users',
     label: 'Users',
     Icon: Contact2,
+    role: ['INSTRUCTOR'],
   },
   {
     href: '/groups',
     label: 'Groups',
     Icon: Users2,
+    role: ['ADVISER', 'INSTRUCTOR'],
+  },
+  {
+    href: '/tasks',
+    label: 'Tasks',
+    Icon: CalendarCheck,
+    role: ['STUDENT'],
+  },
+  {
+    href: '/approval',
+    label: 'Approval',
+    Icon: FileCheck2,
+    role: ['STUDENT'],
   },
 ];
 
@@ -51,8 +76,10 @@ function NavItems({ label, href, Icon }: (typeof routes)[number]) {
 }
 
 export default function InstructorSidebar({
+  user,
   children,
 }: {
+  user: User;
   children: ReactNode;
 }) {
   return (
@@ -60,9 +87,11 @@ export default function InstructorSidebar({
       <div className='flex-grow flex'>
         <aside className='w-72 border-r p-4'>
           <div className='flex flex-col gap-2'>
-            {routes.map((route) => (
-              <NavItems {...route} key={route.label} />
-            ))}
+            {routes
+              .filter((fil) => fil.role.includes(user.role!))
+              .map((route) => (
+                <NavItems {...route} key={route.label} />
+              ))}
           </div>
         </aside>
         <main className='flex-1 flex-grow p-4'>{children}</main>

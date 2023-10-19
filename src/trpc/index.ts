@@ -5,6 +5,7 @@ import { db } from '@/db';
 import { Resend } from 'resend';
 import { z } from 'zod';
 import InviteEmail from '@/email/invite-email';
+import { Task } from '@prisma/client';
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? '');
 
@@ -118,6 +119,40 @@ export const appRouter = router({
       } catch {
         throw new TRPCError({ code: 'BAD_REQUEST' });
       }
+    }),
+  getCurrentUserGroup: privateProcedure.query(async ({ ctx }) => {
+    const group = await db.group.findFirst({
+      where: {
+        members: { some: { id: ctx.user.id as unknown as string | undefined } },
+      },
+      include: { members: true },
+    });
+
+    return group;
+  }),
+
+  updateTaskStatus: publicProcedure
+    .input(
+      z.object({
+        tasks: z.any().array(),
+        taskId: z.string(),
+        status: z.enum(['PENDING', 'ONGOING', 'COMPLETE']),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await db.$transaction(async (prisma) => {
+        await db.task.update({
+          where: { id: input.taskId },
+          data: { status: input.status },
+        });
+        for (const t of input.tasks) {
+          await prisma.$executeRawUnsafe(
+            `UPDATE \`Task\` SET position = ? WHERE id = ?;`,
+            t.position,
+            t.id,
+          );
+        }
+      });
     }),
 });
 

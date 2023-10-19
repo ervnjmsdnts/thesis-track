@@ -1,6 +1,7 @@
 'use client';
 
 import { trpc } from '@/app/_trpc/client';
+import MilestoneBar from '@/components/milestone-bar';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Popover,
@@ -10,15 +11,6 @@ import {
 import UserInfo from '@/components/user-info';
 import { User } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
-
-function MilestoneBar() {
-  return (
-    <div className='h-2 relative w-full rounded-full bg-zinc-300'>
-      <div className='absolute rounded-full bg-green-400 w-[10%] h-2'></div>
-      <p className='text-xs pt-2 text-zinc-400 text-center'>Proposal Defense</p>
-    </div>
-  );
-}
 
 function Group({ users, title }: { users: User[]; title: string }) {
   const maxItems = 4;

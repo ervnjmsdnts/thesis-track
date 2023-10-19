@@ -36,6 +36,7 @@
     "lucide-react": "^0.279.0",
     "next": "latest",
     "react": "latest",
+    "react-beautiful-dnd": "^13.1.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "latest",
     "react-email": "1.9.5",
@@ -49,6 +50,7 @@
   "devDependencies": {
     "@types/node": "latest",
     "@types/react": "latest",
+    "@types/react-beautiful-dnd": "^13.1.6",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
     "eslint": "latest",

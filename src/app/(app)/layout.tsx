@@ -24,12 +24,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     if (dbUser.group.length === 0) return redirect('/assign-group');
   }
 
-  const role = dbUser.role;
-
   return (
     <div className='flex flex-col h-full'>
       <AppNavbar user={dbUser} />
-      <InstructorSidebar>{children}</InstructorSidebar>
+      <InstructorSidebar user={dbUser}>{children}</InstructorSidebar>
     </div>
   );
 }

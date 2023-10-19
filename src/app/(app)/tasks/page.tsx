@@ -1,27 +1,29 @@
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import InstructorDashboard from './(instructor)';
-import { redirect } from 'next/navigation';
 import { db } from '@/db';
-import StudentDashboard from './(student)';
+import TaskBoard from './(components)/task-board';
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+import { redirect } from 'next/navigation';
 
-export default async function Dashboard() {
+export default async function Tasks() {
   const { getUser } = getKindeServerSession();
   const user = getUser();
 
   if (!user || !user.id) return redirect('/auth-callback?origin=dashboard');
 
   const dbUser = await db.user.findFirst({
-    where: {
-      id: user.id,
-    },
+    where: { id: user.id },
+    include: { group: true },
   });
 
-  if (!dbUser) return redirect('/auth-callback');
+  const group = await db.group.findFirst({
+    where: { id: dbUser?.group[0].id },
+    select: { id: true, members: true, tasks: true },
+  });
+
+  if (!group) return;
 
   return (
     <div className='flex flex-col h-full'>
-      {dbUser.role === 'STUDENT' ? <StudentDashboard /> : null}
-      {/* <InstructorDashboard /> */}
+      <TaskBoard group={group} />
     </div>
   );
 }
