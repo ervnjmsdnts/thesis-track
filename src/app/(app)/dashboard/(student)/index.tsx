@@ -22,6 +22,21 @@ function DashboardSkeleton() {
 
 export default function StudentDashboard() {
   const { data: userGroup, isLoading } = trpc.getCurrentUserGroup.useQuery();
+  const { data: user } = trpc.getCurrentUser.useQuery(undefined, {
+    enabled: !!userGroup?.id,
+  });
+
+  const myTasks = userGroup?.tasks.filter((t) => t.assigneeId === user?.id);
+  const groupTasks = userGroup?.tasks;
+  const groupPendingTasks = userGroup?.tasks.filter(
+    (t) => t.status === 'PENDING',
+  );
+  const groupOngoingTasks = userGroup?.tasks.filter(
+    (t) => t.status === 'ONGOING',
+  );
+  const groupCompletedTasks = userGroup?.tasks.filter(
+    (t) => t.status === 'COMPLETE',
+  );
 
   return (
     <>
@@ -37,7 +52,9 @@ export default function StudentDashboard() {
                 <div className='flex gap-2 w-full h-full'>
                   <Card className='w-full shadow-none border-none'>
                     <div className='flex h-full items-center justify-center flex-col'>
-                      <h3 className='font-semibold text-3xl'>0</h3>
+                      <h3 className='font-semibold text-3xl'>
+                        {groupTasks?.length}
+                      </h3>
                       <p className='font-medium text-zinc-500 text-xl'>
                         Total Tasks
                       </p>
@@ -45,17 +62,31 @@ export default function StudentDashboard() {
                   </Card>
                   <Card className='w-full border-none shadow-none'>
                     <div className='flex h-full items-center justify-center flex-col'>
-                      <h3 className='font-semibold text-3xl'>0</h3>
+                      <h3 className='font-semibold text-3xl'>
+                        {groupPendingTasks?.length}
+                      </h3>
                       <p className='font-medium text-zinc-500 text-xl'>
-                        Completed Tasks
+                        Pending Tasks
                       </p>
                     </div>
                   </Card>
                   <Card className='w-full border-none shadow-none'>
                     <div className='flex h-full items-center justify-center flex-col'>
-                      <h3 className='font-semibold text-3xl'>0</h3>
+                      <h3 className='font-semibold text-3xl'>
+                        {groupOngoingTasks?.length}
+                      </h3>
                       <p className='font-medium text-zinc-500 text-xl'>
-                        Pending Tasks
+                        Ongoing Tasks
+                      </p>
+                    </div>
+                  </Card>
+                  <Card className='w-full border-none shadow-none'>
+                    <div className='flex h-full items-center justify-center flex-col'>
+                      <h3 className='font-semibold text-3xl'>
+                        {groupCompletedTasks?.length}
+                      </h3>
+                      <p className='font-medium text-zinc-500 text-xl'>
+                        Completed Tasks
                       </p>
                     </div>
                   </Card>

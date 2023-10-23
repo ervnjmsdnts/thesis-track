@@ -14,10 +14,11 @@ import {
 import { toTitleCase } from '@/lib/utils';
 import { Group, Task, TaskStatus, User } from '@prisma/client';
 import { Clock, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, DropResult } from 'react-beautiful-dnd';
 import { default as Droppable } from '@/components/strict-mode-droppable';
 import { trpc } from '@/app/_trpc/client';
+import { pusherClient } from '@/lib/pusher';
 
 function CreateTaskSheet({
   open,
@@ -147,10 +148,48 @@ export default function TaskBoard({
       task.position = index;
     });
 
-    updateTaskStatus({ status: destId, tasks: allTasks, taskId: movedTask.id });
+    updateTaskStatus({
+      status: destId,
+      tasks: allTasks,
+      taskId: movedTask.id,
+      groupId: group.id,
+    });
 
     setColumns(newColumns);
   };
+
+  useEffect(() => {
+    pusherClient.subscribe(group.id);
+
+    pusherClient.bind('new-column', (data: Task[]) => {
+      const updatedTasks: Record<TaskStatus, Column> = {
+        PENDING: {
+          name: 'Pending',
+          items: data
+            .filter((t) => t.status === 'PENDING')
+            .sort((a, b) => a.position - b.position),
+        },
+        ONGOING: {
+          name: 'Ongoing',
+          items: data
+            .filter((t) => t.status === 'ONGOING')
+            .sort((a, b) => a.position - b.position),
+        },
+        COMPLETE: {
+          name: 'Complete',
+          items: data
+            .filter((t) => t.status === 'COMPLETE')
+            .sort((a, b) => a.position - b.position),
+        },
+      };
+
+      setColumns((prev) => ({ ...prev, ...updatedTasks }));
+    });
+
+    return () => {
+      pusherClient.unsubscribe(group.id);
+    };
+  }, [group.id]);
 
   return (
     <>
