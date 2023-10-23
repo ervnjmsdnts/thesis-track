@@ -42,19 +42,20 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>;
 
 export default function AssignGroup() {
-  const { data: users } = trpc.getOtherUsers.useQuery();
+  const { data: users } = trpc.user.getWithNoGroup.useQuery();
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const form = useForm<Schema>({ resolver: zodResolver(schema) });
 
   const router = useRouter();
 
-  const { mutate: studentCreateGroup } = trpc.studentCreateGroup.useMutation({
-    onSuccess: () => router.replace('/dashboard'),
-  });
+  const { mutate: createGroupByStudent } =
+    trpc.group.createGroupByStudent.useMutation({
+      onSuccess: () => router.replace('/dashboard'),
+    });
 
   const submit = async (data: Schema) => {
-    studentCreateGroup({ title: data.title, members: selectedUsers });
+    createGroupByStudent({ title: data.title, members: selectedUsers });
   };
 
   return (

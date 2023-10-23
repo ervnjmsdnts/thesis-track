@@ -35,14 +35,13 @@ export default function ChooseSection() {
 
   const router = useRouter();
 
-  const { data: dbSections } = trpc.getSections.useQuery();
-  const { mutate: setUserSection, isLoading } = trpc.setUserSection.useMutation(
-    {
+  const { data: dbSections } = trpc.section.getAll.useQuery();
+  const { mutate: setUserSection, isLoading } =
+    trpc.user.setSection.useMutation({
       onSuccess: () => {
         router.replace('/assign-group');
       },
-    },
-  );
+    });
 
   const submit = (data: Schema) => {
     const sectionId = dbSections?.find(

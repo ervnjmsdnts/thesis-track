@@ -5,7 +5,7 @@ import { columns } from '../columns';
 import { trpc } from '@/app/_trpc/client';
 
 export default function GroupsTable() {
-  const { data } = trpc.getGroups.useQuery();
+  const { data } = trpc.group.getAll.useQuery();
 
   if (!data) return;
 

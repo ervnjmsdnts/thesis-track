@@ -14,7 +14,7 @@ export default function ChooseRole() {
 
   const router = useRouter();
 
-  const { mutate: setUserRole, isLoading } = trpc.setUserRole.useMutation({
+  const { mutate: setUserRole, isLoading } = trpc.user.setRole.useMutation({
     onSuccess: () => {
       if (role === 'ADVISER') {
         router.replace('/dashboard');

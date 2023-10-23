@@ -55,7 +55,7 @@ type Schema = z.infer<typeof schema>;
 function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
   const form = useForm<Schema>({ resolver: zodResolver(schema) });
 
-  const { data: currentGroup } = trpc.getCurrentUserGroup.useQuery();
+  const { data: currentGroup } = trpc.group.getCurrent.useQuery();
 
   const submit = (data: Schema) => {
     console.log({ data });
@@ -252,7 +252,7 @@ export default function TaskBoard({
 
   const [columns, setColumns] = useState(initialColumns);
 
-  const { mutate: updateTaskStatus } = trpc.updateTaskStatus.useMutation();
+  const { mutate: updateTaskStatus } = trpc.task.updateStatus.useMutation();
 
   const handleOnDragEnd = async (result: DropResult) => {
     if (!result.destination) return;

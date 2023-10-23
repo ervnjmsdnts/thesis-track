@@ -65,7 +65,7 @@ function Group({ users, title }: { users: User[]; title: string }) {
 }
 
 export default function Groups() {
-  const { data: groups, isLoading } = trpc.getGroups.useQuery();
+  const { data: groups, isLoading } = trpc.group.getAll.useQuery();
 
   return (
     <div className='flex flex-col h-0 overflow-y-auto flex-grow gap-4'>

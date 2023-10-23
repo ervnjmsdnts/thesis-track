@@ -13,7 +13,7 @@ export default function UserTableToolbar<TData>({
 }) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const { data: dbSections } = trpc.getSections.useQuery();
+  const { data: dbSections } = trpc.section.getAll.useQuery();
 
   const sections = dbSections?.map((s) => ({
     label: s.name,

@@ -1,14 +1,11 @@
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import { privateProcedure, publicProcedure, router } from './trpc';
+import { publicProcedure, router } from './trpc';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db';
-import { Resend } from 'resend';
-import { z } from 'zod';
-import InviteEmail from '@/email/invite-email';
-import { Task } from '@prisma/client';
-import { pusherServer } from '@/lib/pusher';
-
-const resend = new Resend(process.env.RESEND_API_KEY ?? '');
+import { userRouter } from './routers/user';
+import { groupRouter } from './routers/group';
+import { sectionRouter } from './routers/section';
+import { taskRouter } from './routers/task';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -35,145 +32,10 @@ export const appRouter = router({
 
     return { success: true, needsRole: false };
   }),
-  getUsers: publicProcedure.query(async () => {
-    const dbUsers = await db.user.findMany({
-      include: { section: true },
-    });
-
-    return dbUsers;
-  }),
-  getOtherUsers: privateProcedure.query(async ({ ctx }) => {
-    const dbUsers = await db.user.findMany({
-      where: {
-        id: { not: ctx.user.id as unknown as string | undefined },
-        group: { none: {} },
-      },
-      include: { group: { select: { members: true } } },
-    });
-
-    return dbUsers;
-  }),
-  getCurrentUser: privateProcedure.query(async ({ ctx }) => {
-    const dbUser = await db.user.findFirst({
-      where: { id: ctx.user.id as unknown as string | undefined },
-    });
-
-    return dbUser;
-  }),
-  getGroups: publicProcedure.query(async () => {
-    const dbGroups = await db.group.findMany({ include: { members: true } });
-
-    return dbGroups;
-  }),
-  setUserRole: privateProcedure
-    .input(
-      z.object({
-        role: z.enum(['STUDENT', 'ADVISER', 'INSTRUCTOR']),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      await db.user.update({
-        where: { id: ctx.user.id as unknown as string | undefined },
-        data: { role: input.role },
-      });
-    }),
-  getSections: publicProcedure.query(async () => {
-    const dbSections = await db.section.findMany();
-
-    return dbSections;
-  }),
-  setUserSection: privateProcedure
-    .input(z.object({ sectionId: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      await db.user.update({
-        where: { id: ctx.user.id as unknown as string | undefined },
-        data: { sectionId: input.sectionId },
-      });
-    }),
-  studentCreateGroup: privateProcedure
-    .input(
-      z.object({
-        title: z.string().nullable(),
-        members: z.object({ id: z.string(), email: z.string() }).array(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      await db.group.create({
-        data: {
-          ...(input.title ? { title: input.title } : {}),
-          members: {
-            connect: [
-              ...input.members.map((m) => ({ id: m.id })),
-              { id: ctx.user.id as unknown as string | undefined },
-            ],
-          },
-        },
-      });
-
-      const emailPromises = [];
-
-      for (const member of input.members) {
-        const promise = resend.sendEmail({
-          from: 'invite@thesistrack.cloudns.ph',
-          to: member.email,
-          subject: 'Invitation',
-          react: InviteEmail(),
-        });
-        emailPromises.push(promise);
-      }
-
-      try {
-        await Promise.all(emailPromises);
-      } catch {
-        throw new TRPCError({ code: 'BAD_REQUEST' });
-      }
-    }),
-  getCurrentUserGroup: privateProcedure.query(async ({ ctx }) => {
-    const group = await db.group.findFirst({
-      where: {
-        members: { some: { id: ctx.user.id as unknown as string | undefined } },
-      },
-      include: { members: true, tasks: true },
-    });
-
-    return group;
-  }),
-
-  updateTaskStatus: publicProcedure
-    .input(
-      z.object({
-        tasks: z.any().array(),
-        taskId: z.string(),
-        groupId: z.string(),
-        status: z.enum(['PENDING', 'ONGOING', 'COMPLETE']),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      pusherServer.trigger(input.groupId, 'new-column', input.tasks);
-      const newTasks = await db.$transaction(async (prisma) => {
-        const updatedTasks: Task[] = [];
-        await db.task.update({
-          where: { id: input.taskId },
-          data: { status: input.status },
-        });
-
-        for (const t of input.tasks) {
-          await prisma.$executeRawUnsafe(
-            `UPDATE \`Task\` SET position = ? WHERE id = ?;`,
-            t.position,
-            t.id,
-          );
-
-          const updatedTask = await prisma.task.findUnique({
-            where: { id: t.id },
-          });
-
-          updatedTasks.push(updatedTask!);
-        }
-
-        return updatedTasks;
-      });
-    }),
+  user: userRouter,
+  group: groupRouter,
+  section: sectionRouter,
+  task: taskRouter,
 });
 
 export type AppRouter = typeof appRouter;

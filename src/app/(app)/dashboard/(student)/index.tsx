@@ -21,8 +21,8 @@ function DashboardSkeleton() {
 }
 
 export default function StudentDashboard() {
-  const { data: userGroup, isLoading } = trpc.getCurrentUserGroup.useQuery();
-  const { data: user } = trpc.getCurrentUser.useQuery(undefined, {
+  const { data: userGroup, isLoading } = trpc.group.getCurrent.useQuery();
+  const { data: user } = trpc.user.getCurrent.useQuery(undefined, {
     enabled: !!userGroup?.id,
   });
 
