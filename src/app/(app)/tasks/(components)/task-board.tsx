@@ -10,33 +10,184 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from '@/components/ui/sheet';
-import { toTitleCase } from '@/lib/utils';
+import { cn, toTitleCase } from '@/lib/utils';
 import { Group, Task, TaskStatus, User } from '@prisma/client';
-import { Clock, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, DropResult } from 'react-beautiful-dnd';
 import { default as Droppable } from '@/components/strict-mode-droppable';
 import { trpc } from '@/app/_trpc/client';
 import { pusherClient } from '@/lib/pusher';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 
-function CreateTaskSheet({
-  open,
-  setOpen,
-  taskStatus,
-}: {
-  open: boolean;
-  setOpen: any;
-  taskStatus: TaskStatus | null;
-}) {
+const schema = z.object({
+  title: z.string(),
+  status: z.enum(['PENDING', 'ONGOING', 'COMPLETE']),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
+  type: z.enum(['DOCUMENTATION', 'DEVELOPMENT', 'DESIGN']),
+  assignTo: z.string(),
+  dueDate: z.date(),
+});
+
+type Schema = z.infer<typeof schema>;
+
+function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
+  const form = useForm<Schema>({ resolver: zodResolver(schema) });
+
+  const { data: currentGroup } = trpc.getCurrentUserGroup.useQuery();
+
+  const submit = (data: Schema) => {
+    console.log({ data });
+  };
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle>{toTitleCase(taskStatus)} Task</SheetTitle>
-        </SheetHeader>
-      </SheetContent>
-    </Sheet>
+    <>
+      <div className='flex flex-col gap-2 flex-grow'>
+        <Input placeholder='Title' {...form.register('title')} />
+        <Controller
+          control={form.control}
+          defaultValue={taskStatus}
+          name='status'
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <SelectTrigger
+                className={cn(!field.value && 'text-muted-foreground')}>
+                <SelectValue placeholder='Select status' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Statuses</SelectLabel>
+                  <SelectItem value='PENDING'>Pending</SelectItem>
+                  <SelectItem value='ONGOING'>Ongoing</SelectItem>
+                  <SelectItem value='COMPLETE'>Complete</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name='priority'
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <SelectTrigger
+                className={cn(!field.value && 'text-muted-foreground')}>
+                <SelectValue placeholder='Select priority' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Statuses</SelectLabel>
+                  <SelectItem value='LOW'>Low</SelectItem>
+                  <SelectItem value='MEDIUM'>Medium</SelectItem>
+                  <SelectItem value='HIGH'>High</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name='type'
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <SelectTrigger
+                className={cn(!field.value && 'text-muted-foreground')}>
+                <SelectValue placeholder='Select type' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Statuses</SelectLabel>
+                  <SelectItem value='DOCUMENTATION'>Documentation</SelectItem>
+                  <SelectItem value='DEVELOPMENT'>Development</SelectItem>
+                  <SelectItem value='DESIGN'>Design</SelectItem>
+                  <SelectItem value='OTHER'>Other</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name='assignTo'
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <SelectTrigger
+                className={cn(!field.value && 'text-muted-foreground')}>
+                <SelectValue placeholder='Assign to' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Members</SelectLabel>
+                  {currentGroup?.members.map((member) => (
+                    <SelectItem value={member.id} key={member.id}>
+                      {member.firstName} {member.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name='dueDate'
+          render={({ field }) => (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={'outline'}
+                  className={cn(
+                    'pl-3 text-left font-normal',
+                    !field.value && 'text-muted-foreground',
+                  )}>
+                  {field.value ? (
+                    format(field.value, 'PPP')
+                  ) : (
+                    <span>Pick due date</span>
+                  )}
+                  <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-auto p-0' align='start'>
+                <Calendar
+                  mode='single'
+                  disabled={(date) => {
+                    const currentDate = new Date();
+                    currentDate.setHours(0, 0, 0, 0);
+                    return date < currentDate;
+                  }}
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+        />
+      </div>
+      <Button onClick={form.handleSubmit(submit)}>Add Task</Button>
+    </>
   );
 }
 
@@ -192,64 +343,68 @@ export default function TaskBoard({
   }, [group.id]);
 
   return (
-    <>
-      <CreateTaskSheet
-        open={open}
-        setOpen={setOpen}
-        taskStatus={selectedTaskStatus!}
-      />
-      <div className='flex-grow'>
-        <div className='grid grid-cols-3 h-full gap-6'>
-          <DragDropContext onDragEnd={handleOnDragEnd}>
-            {Object.keys(columns).map((columnId) => {
-              const status = columnId as TaskStatus;
-              return (
-                <div key={columnId} className='flex flex-col h-full gap-4'>
-                  <div className='flex items-center justify-between w-full'>
-                    <h3 className='font-semibold text-xl'>
-                      {columns[status].name} Tasks
-                    </h3>
-                    <Button
-                      onClick={() => {
-                        setSelectedTaskStatus(status);
-                        setOpen(true);
-                      }}
-                      variant='outline'
-                      size='sm'>
-                      <Plus className='h-4 w-4' />
-                    </Button>
-                  </div>
-                  <Droppable droppableId={columnId}>
-                    {(provided) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className='flex flex-col bg-zinc-50 rounded-lg p-4 flex-grow h-0 overflow-y-auto gap-2'>
-                        {columns[status].items.map((task, taskIndex) => (
-                          <Draggable
-                            key={task.id}
-                            draggableId={task.id.toString()}
-                            index={taskIndex}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}>
-                                <Task title={task.title} />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
+    <div className='flex-grow'>
+      <div className='grid grid-cols-3 h-full gap-6'>
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+          {Object.keys(columns).map((columnId) => {
+            const status = columnId as TaskStatus;
+            return (
+              <div key={columnId} className='flex flex-col h-full gap-4'>
+                <div className='flex items-center justify-between w-full'>
+                  <h3 className='font-semibold text-xl'>
+                    {columns[status].name} Tasks
+                  </h3>
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button
+                        onClick={() => {
+                          setSelectedTaskStatus(status);
+                        }}
+                        variant='outline'
+                        size='sm'>
+                        <Plus className='h-4 w-4' />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent className='flex flex-col'>
+                      <SheetHeader>
+                        <SheetTitle>
+                          {toTitleCase(selectedTaskStatus!)}
+                        </SheetTitle>
+                      </SheetHeader>
+                      <CreateTask taskStatus={selectedTaskStatus!} />
+                    </SheetContent>
+                  </Sheet>
                 </div>
-              );
-            })}
-          </DragDropContext>
-        </div>
+                <Droppable droppableId={columnId}>
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className='flex flex-col bg-zinc-50 rounded-lg p-4 flex-grow h-0 overflow-y-auto gap-2'>
+                      {columns[status].items.map((task, taskIndex) => (
+                        <Draggable
+                          key={task.id}
+                          draggableId={task.id.toString()}
+                          index={taskIndex}>
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}>
+                              <Task title={task.title} />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            );
+          })}
+        </DragDropContext>
       </div>
-    </>
+    </div>
   );
 }

@@ -57,7 +57,7 @@ enum TaskStatus {
 
 enum TaskPriority {
   LOW
-  MIDIUM
+  MEDIUM
   HIGH
 }
 
@@ -65,6 +65,7 @@ enum TaskTypes {
   DOCUMENTATION
   DEVELOPMENT
   DESIGN
+  OTHER
 }
 
 model Task {
