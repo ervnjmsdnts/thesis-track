@@ -16,7 +16,10 @@ export default async function Tasks() {
 
   const group = await db.group.findFirst({
     where: { id: dbUser?.group[0].id },
-    include: { members: true, tasks: true },
+    include: {
+      members: true,
+      tasks: true,
+    },
   });
 
   if (!group) return;

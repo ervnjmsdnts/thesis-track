@@ -72,7 +72,7 @@ model Task {
   id        String       @id @unique @default(cuid())
   title     String
   status    TaskStatus
-  type      TaskTypes?
+  type      TaskTypes
   priority  TaskPriority
   position  Int
   dueDate   DateTime
@@ -82,8 +82,8 @@ model Task {
   group   Group  @relation(fields: [groupId], references: [id])
   groupId String
 
-  assignee   User?   @relation(fields: [assigneeId], references: [id])
-  assigneeId String?
+  assignee   User   @relation(fields: [assigneeId], references: [id])
+  assigneeId String
 }
 
 enum CommentStatus {

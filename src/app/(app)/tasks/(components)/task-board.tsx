@@ -13,8 +13,16 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn, toTitleCase } from '@/lib/utils';
-import { Group, Task, TaskStatus, User } from '@prisma/client';
-import { Calendar as CalendarIcon, Clock, Plus } from 'lucide-react';
+import { Group, Task, TaskStatus, TaskTypes, User } from '@prisma/client';
+import {
+  Calendar as CalendarIcon,
+  Clock,
+  Delete,
+  Loader2,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, DropResult } from 'react-beautiful-dnd';
 import { default as Droppable } from '@/components/strict-mode-droppable';
@@ -40,52 +48,118 @@ import {
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const schema = z.object({
   title: z.string(),
   status: z.enum(['PENDING', 'ONGOING', 'COMPLETE']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
-  type: z.enum(['DOCUMENTATION', 'DEVELOPMENT', 'DESIGN']),
-  assignTo: z.string(),
+  type: z.enum(['DOCUMENTATION', 'DEVELOPMENT', 'DESIGN', 'OTHER']),
+  assigneeId: z.string(),
   dueDate: z.date(),
 });
 
 type Schema = z.infer<typeof schema>;
 
-function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
-  const form = useForm<Schema>({ resolver: zodResolver(schema) });
+function ActionTask({
+  taskStatus,
+  group,
+  closeSheet,
+  task,
+}: {
+  taskStatus?: TaskStatus;
+  task?: Task;
+  group: Group & { members: User[] };
+  isEdit?: boolean;
+  closeSheet: () => void;
+}) {
+  const isEdit = task?.id !== undefined && Object.keys(task).length > 0;
 
-  const { data: currentGroup } = trpc.group.getCurrent.useQuery();
+  const form = useForm<Schema>({
+    resolver: zodResolver(schema),
+    ...(isEdit
+      ? {
+          defaultValues: {
+            type: task?.type,
+            assigneeId: task?.assigneeId,
+            dueDate: task?.dueDate,
+            priority: task?.priority,
+            status: task?.status,
+            title: task?.title,
+          },
+        }
+      : {}),
+  });
+
+  const { mutate: createTask, isLoading: createLoading } =
+    trpc.task.createTask.useMutation({
+      onSuccess: () => closeSheet(),
+    });
+  const { mutate: updateTask, isLoading: updateLoading } =
+    trpc.task.updateTask.useMutation({
+      onSuccess: () => closeSheet(),
+    });
+
+  const isLoading = createLoading || updateLoading;
 
   const submit = (data: Schema) => {
-    console.log({ data });
+    if (isEdit) {
+      updateTask({
+        ...data,
+        dueDate: data.dueDate.toString(),
+        taskId: task.id,
+        groupId: group.id,
+      });
+    } else {
+      createTask({
+        ...data,
+        groupId: group.id,
+        dueDate: data.dueDate.toString(),
+      });
+    }
   };
 
   return (
     <>
       <div className='flex flex-col gap-2 flex-grow'>
         <Input placeholder='Title' {...form.register('title')} />
-        <Controller
-          control={form.control}
-          defaultValue={taskStatus}
-          name='status'
-          render={({ field }) => (
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <SelectTrigger
-                className={cn(!field.value && 'text-muted-foreground')}>
-                <SelectValue placeholder='Select status' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Statuses</SelectLabel>
-                  <SelectItem value='PENDING'>Pending</SelectItem>
-                  <SelectItem value='ONGOING'>Ongoing</SelectItem>
-                  <SelectItem value='COMPLETE'>Complete</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          )}
-        />
+        {!isEdit ? (
+          <Controller
+            control={form.control}
+            defaultValue={taskStatus}
+            name='status'
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger
+                  className={cn(!field.value && 'text-muted-foreground')}>
+                  <SelectValue placeholder='Select status' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Statuses</SelectLabel>
+                    <SelectItem value='PENDING'>Pending</SelectItem>
+                    <SelectItem value='ONGOING'>Ongoing</SelectItem>
+                    <SelectItem value='COMPLETE'>Complete</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        ) : null}
         <Controller
           control={form.control}
           name='priority'
@@ -97,7 +171,7 @@ function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Statuses</SelectLabel>
+                  <SelectLabel>Priorities</SelectLabel>
                   <SelectItem value='LOW'>Low</SelectItem>
                   <SelectItem value='MEDIUM'>Medium</SelectItem>
                   <SelectItem value='HIGH'>High</SelectItem>
@@ -117,7 +191,7 @@ function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Statuses</SelectLabel>
+                  <SelectLabel>Types</SelectLabel>
                   <SelectItem value='DOCUMENTATION'>Documentation</SelectItem>
                   <SelectItem value='DEVELOPMENT'>Development</SelectItem>
                   <SelectItem value='DESIGN'>Design</SelectItem>
@@ -129,7 +203,7 @@ function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
         />
         <Controller
           control={form.control}
-          name='assignTo'
+          name='assigneeId'
           render={({ field }) => (
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <SelectTrigger
@@ -139,7 +213,7 @@ function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Members</SelectLabel>
-                  {currentGroup?.members.map((member) => (
+                  {group?.members.map((member) => (
                     <SelectItem value={member.id} key={member.id}>
                       {member.firstName} {member.lastName}
                     </SelectItem>
@@ -162,7 +236,7 @@ function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
                     !field.value && 'text-muted-foreground',
                   )}>
                   {field.value ? (
-                    format(field.value, 'PPP')
+                    format(new Date(field.value), 'PPP')
                   ) : (
                     <span>Pick due date</span>
                   )}
@@ -186,29 +260,134 @@ function CreateTask({ taskStatus }: { taskStatus: TaskStatus }) {
           )}
         />
       </div>
-      <Button onClick={form.handleSubmit(submit)}>Add Task</Button>
+      <Button onClick={form.handleSubmit(submit)} disabled={isLoading}>
+        {isLoading ? (
+          <Loader2 className='h-4 w-4 animate-spin' />
+        ) : isEdit ? (
+          'Update Task'
+        ) : (
+          'Add Task'
+        )}
+      </Button>
     </>
   );
 }
 
-function Task({ title = 'Create Introduction' }: { title?: string }) {
+function Task({
+  task,
+  group,
+}: {
+  task: Task;
+  group: Group & { members: User[] };
+}) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const assignee = group.members.find(
+    (member) => member.id === task.assigneeId,
+  );
+
+  const { mutate: deleteTask } = trpc.task.deleteTask.useMutation({
+    onSuccess: () => setDialogOpen(false),
+  });
+
+  const handleDelete = () => {
+    deleteTask({ taskId: task.id, groupId: group.id });
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-xl mb-2'>{title}</CardTitle>
+        <div className='flex items-center justify-between'>
+          <CardTitle className='text-xl mb-2'>{task.title}</CardTitle>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='p-2'>
+                <MoreHorizontal className='w-5 h-5' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuGroup>
+                <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+                  <SheetTrigger asChild onSelect={(e) => e.preventDefault()}>
+                    <DropdownMenuItem>
+                      <Pencil className='mr-2 h-4 w-4' />
+                      <span>Edit</span>
+                    </DropdownMenuItem>
+                  </SheetTrigger>
+                  <SheetContent className='flex flex-col'>
+                    <SheetHeader>
+                      <SheetTitle>{toTitleCase(task.status)}</SheetTitle>
+                    </SheetHeader>
+                    <ActionTask
+                      taskStatus={task.status}
+                      closeSheet={() => setSheetOpen(false)}
+                      group={group}
+                      task={task}
+                    />
+                  </SheetContent>
+                </Sheet>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild onSelect={(e) => e.preventDefault()}>
+                    <DropdownMenuItem>
+                      <Delete className='mr-2 h-4 w-4' />
+                      <span>Delete</span>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        Are you sure you want to delete this task?
+                      </DialogTitle>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant='ghost'>Cancel</Button>
+                      <Button variant='destructive' onClick={handleDelete}>
+                        Confirm
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <div className='flex gap-2'>
-          <Badge>Medium</Badge>
-          <Badge>Development</Badge>
+          <Badge
+            className={cn(
+              task.priority === 'LOW'
+                ? 'bg-green-200 hover:bg-green-100 text-green-800'
+                : task.priority === 'MEDIUM'
+                ? 'bg-yellow-200 hover:bg-yellow-100 text-yellow-800'
+                : 'bg-red-200 hover:bg-red-100 text-red-800',
+            )}>
+            {toTitleCase(task.priority)}
+          </Badge>
+          <Badge
+            className={cn(
+              task.type === 'DOCUMENTATION'
+                ? 'bg-blue-200 hover:bg-blue-100 text-blue-800'
+                : task.type === 'DEVELOPMENT'
+                ? 'bg-pink-200 hover:bg-pink-100 text-pink-800'
+                : task.type === 'DESIGN'
+                ? 'bg-purple-200 hover:bg-purple-100 text-purple-800'
+                : 'bg-zinc-200 hover:bg-zinc-100 text-zinc-800',
+            )}>
+            {toTitleCase(task.type)}
+          </Badge>
         </div>
       </CardHeader>
       <Separator className='mb-4' />
       <CardFooter className='flex justify-between items-center'>
         <div className='flex text-zinc-500 text-sm items-center gap-2'>
           <Clock className='h-4 w-4' />
-          <p>Due date</p>
+          <p>{format(new Date(task?.dueDate), 'PP')}</p>
         </div>
         <Avatar>
-          <AvatarFallback>TT</AvatarFallback>
+          <AvatarFallback>
+            {assignee?.firstName[0]}
+            {assignee?.lastName[0]}
+          </AvatarFallback>
         </Avatar>
       </CardFooter>
     </Card>
@@ -218,7 +397,10 @@ function Task({ title = 'Create Introduction' }: { title?: string }) {
 export default function TaskBoard({
   group,
 }: {
-  group: Group & { members: User[]; tasks: Task[] };
+  group: Group & {
+    members: User[];
+    tasks: Task[];
+  };
 }) {
   const [open, setOpen] = useState(false);
   const [selectedTaskStatus, setSelectedTaskStatus] =
@@ -318,29 +500,106 @@ export default function TaskBoard({
           name: 'Pending',
           items: data
             .filter((t) => t.status === 'PENDING')
+            .map((item) => ({
+              ...item,
+              dueDate: new Date(item.dueDate),
+              createdAt: new Date(item.createdAt),
+              updatedAt: new Date(item.updatedAt),
+            }))
             .sort((a, b) => a.position - b.position),
         },
         ONGOING: {
           name: 'Ongoing',
           items: data
             .filter((t) => t.status === 'ONGOING')
+            .map((item) => ({
+              ...item,
+              dueDate: new Date(item.dueDate),
+              createdAt: new Date(item.createdAt),
+              updatedAt: new Date(item.updatedAt),
+            }))
             .sort((a, b) => a.position - b.position),
         },
         COMPLETE: {
           name: 'Complete',
           items: data
             .filter((t) => t.status === 'COMPLETE')
+            .map((item) => ({
+              ...item,
+              dueDate: new Date(item.dueDate),
+              createdAt: new Date(item.createdAt),
+              updatedAt: new Date(item.updatedAt),
+            }))
             .sort((a, b) => a.position - b.position),
         },
       };
 
       setColumns((prev) => ({ ...prev, ...updatedTasks }));
     });
+    pusherClient.bind('new-task', (data: Task) => {
+      const updatedColumns = { ...columns };
+
+      updatedColumns[data.status] = {
+        name: data.status,
+        items: [
+          ...updatedColumns[data.status].items,
+          {
+            ...data,
+            dueDate: new Date(new Date(data.dueDate)),
+            createdAt: new Date(data.createdAt),
+            updatedAt: new Date(data.updatedAt),
+          },
+        ],
+      };
+
+      updatedColumns[data.status].items.sort((a, b) => a.position - b.position);
+
+      setColumns(updatedColumns);
+    });
+    pusherClient.bind('update-task', (updatedTask: Task) => {
+      const updatedColumns = { ...columns };
+
+      const statusColumn = updatedColumns[updatedTask.status];
+      const updatedItems = statusColumn.items.map((item) =>
+        item.id === updatedTask.id ? updatedTask : item,
+      );
+
+      updatedItems.sort((a, b) => a.position - b.position);
+
+      updatedColumns[updatedTask.status] = {
+        ...statusColumn,
+        items: [
+          ...updatedItems.map((item) => ({
+            ...item,
+            dueDate: new Date(item.dueDate),
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+          })),
+        ],
+      };
+
+      setColumns(updatedColumns);
+    });
+    pusherClient.bind('delete-task', (deletedTaskId: string) => {
+      setColumns((prevColumns) => {
+        const updatedColumns = { ...prevColumns };
+
+        const columnNames = Object.keys(updatedColumns) as TaskStatus[];
+
+        columnNames.forEach((status) => {
+          updatedColumns[status].items = updatedColumns[status].items.filter(
+            (item) => item.id !== deletedTaskId,
+          );
+        });
+
+        return updatedColumns;
+      });
+    });
 
     return () => {
       pusherClient.unsubscribe(group.id);
     };
-  }, [group.id]);
+  }, [group.id, columns]);
 
   return (
     <div className='flex-grow'>
@@ -354,7 +613,7 @@ export default function TaskBoard({
                   <h3 className='font-semibold text-xl'>
                     {columns[status].name} Tasks
                   </h3>
-                  <Sheet>
+                  <Sheet open={open} onOpenChange={setOpen}>
                     <SheetTrigger asChild>
                       <Button
                         onClick={() => {
@@ -371,7 +630,11 @@ export default function TaskBoard({
                           {toTitleCase(selectedTaskStatus!)}
                         </SheetTitle>
                       </SheetHeader>
-                      <CreateTask taskStatus={selectedTaskStatus!} />
+                      <ActionTask
+                        closeSheet={() => setOpen(false)}
+                        taskStatus={selectedTaskStatus!}
+                        group={group}
+                      />
                     </SheetContent>
                   </Sheet>
                 </div>
@@ -391,7 +654,7 @@ export default function TaskBoard({
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}>
-                              <Task title={task.title} />
+                              <Task task={task} group={group} />
                             </div>
                           )}
                         </Draggable>
