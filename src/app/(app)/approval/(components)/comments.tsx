@@ -10,6 +10,7 @@ import { ChevronRight, Ghost, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { DocumentStatusBadge } from './document-status';
 
 const schema = z.object({ content: z.string() });
 
@@ -78,11 +79,17 @@ export default function Comments({
               Reject
             </Button>
           </div>
-        ) : null}
+        ) : (
+          <DocumentStatusBadge status={status} />
+        )}
       </div>
       <div className='flex-1 flex flex-col mt-4'>
         {comments && comments.length > 0 ? (
-          <div className='flex flex-col gap-1 items-start flex-grow h-0 overflow-y-auto'>
+          <div
+            className={cn(
+              'flex flex-col gap-1 items-end flex-grow h-0 overflow-y-auto',
+              !isStaffRole && 'items-start',
+            )}>
             {comments.map((comment) => (
               <div key={comment.id} className='rounded-lg bg-primary flex'>
                 <p className='text-sm text-white p-2'>{comment.content}</p>

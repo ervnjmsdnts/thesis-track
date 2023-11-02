@@ -8,14 +8,13 @@ import {
   LinearScale,
   BarElement,
   TimeScale,
-  Title,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, TimeScale, Title);
+ChartJS.register(CategoryScale, LinearScale, BarElement, TimeScale);
 
 export default function Timeline({ tasks }: { tasks: Task[] }) {
   const router = useRouter();
@@ -68,8 +67,22 @@ export default function Timeline({ tasks }: { tasks: Task[] }) {
         options={{
           indexAxis: 'y',
           responsive: true,
+          plugins: {
+            tooltip: { enabled: false },
+            legend: { display: false },
+            title: { display: false },
+          },
           elements: { bar: { borderWidth: 2 } },
           scales: {
+            y: {
+              ticks: {
+                crossAlign: 'center',
+                callback: function (value) {
+                  const label = this.getLabelForValue(value as number);
+                  return label.split(' ');
+                },
+              },
+            },
             x: {
               ticks: { stepSize: 1 },
               type: 'time',
