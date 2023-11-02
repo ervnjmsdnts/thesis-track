@@ -63,6 +63,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import PriorityBadge from '@/components/priority-badge';
+import TypeBadge from '@/components/type-badge';
 
 const schema = z.object({
   title: z.string(),
@@ -353,28 +355,8 @@ function Task({
           </DropdownMenu>
         </div>
         <div className='flex gap-2'>
-          <Badge
-            className={cn(
-              task.priority === 'LOW'
-                ? 'bg-green-200 hover:bg-green-100 text-green-800'
-                : task.priority === 'MEDIUM'
-                ? 'bg-yellow-200 hover:bg-yellow-100 text-yellow-800'
-                : 'bg-red-200 hover:bg-red-100 text-red-800',
-            )}>
-            {toTitleCase(task.priority)}
-          </Badge>
-          <Badge
-            className={cn(
-              task.type === 'DOCUMENTATION'
-                ? 'bg-blue-200 hover:bg-blue-100 text-blue-800'
-                : task.type === 'DEVELOPMENT'
-                ? 'bg-pink-200 hover:bg-pink-100 text-pink-800'
-                : task.type === 'DESIGN'
-                ? 'bg-purple-200 hover:bg-purple-100 text-purple-800'
-                : 'bg-zinc-200 hover:bg-zinc-100 text-zinc-800',
-            )}>
-            {toTitleCase(task.type)}
-          </Badge>
+          <PriorityBadge priority={task.priority} />
+          <TypeBadge type={task.type} />
         </div>
       </CardHeader>
       <Separator className='mb-4' />

@@ -2,9 +2,20 @@
 
 import { trpc } from '@/app/_trpc/client';
 import MilestoneBar from '@/components/milestone-bar';
+import PriorityBadge from '@/components/priority-badge';
+import TypeBadge from '@/components/type-badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Task } from '@prisma/client';
+import { format } from 'date-fns';
+import { Clock, Ghost } from 'lucide-react';
 
 function DashboardSkeleton() {
   return (
@@ -20,6 +31,26 @@ function DashboardSkeleton() {
   );
 }
 
+function DashboardTask({ task }: { task: Task }) {
+  return (
+    <Card>
+      <CardHeader className='flex flex-row gap-4 items-center'>
+        <CardTitle className='text-xl'>{task.title}</CardTitle>
+        <div className='flex gap-2'>
+          <PriorityBadge priority={task.priority} />
+          <TypeBadge type={task.type} />
+        </div>
+      </CardHeader>
+      <CardFooter>
+        <div className='flex text-zinc-500 text-sm items-center gap-2'>
+          <Clock className='h-4 w-4' />
+          <p>{format(new Date(task.dueDate), 'PP')}</p>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
 export default function StudentDashboard() {
   const { data: userGroup, isLoading } = trpc.group.getCurrent.useQuery();
   const { data: user } = trpc.user.getCurrent.useQuery(undefined, {
@@ -27,6 +58,10 @@ export default function StudentDashboard() {
   });
 
   const myTasks = userGroup?.tasks.filter((t) => t.assigneeId === user?.id);
+  const myPendingTasks = myTasks?.filter((t) => t.status === 'PENDING');
+  const myOngoingTasks = myTasks?.filter((t) => t.status === 'ONGOING');
+  const myCompletedTasks = myTasks?.filter((t) => t.status === 'COMPLETE');
+  const adviser = userGroup?.members.find((m) => m.role === 'ADVISER');
   const groupTasks = userGroup?.tasks;
   const groupPendingTasks = userGroup?.tasks.filter(
     (t) => t.status === 'PENDING',
@@ -93,11 +128,11 @@ export default function StudentDashboard() {
                 </div>
               </CardContent>
             </Card>
-            <Card className='col-span-2 row-span-2'>
+            <Card className='col-span-2 row-span-1 flex flex-col'>
               <CardHeader>
                 <CardTitle className='text-zinc-600'>Members</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className='flex flex-col flex-grow h-0 overflow-y-auto'>
                 <div className='flex flex-col gap-2'>
                   {userGroup.members.map((member) => (
                     <div
@@ -115,7 +150,7 @@ export default function StudentDashboard() {
                             {member.firstName} {member.lastName}
                           </p>
                           <p className='text-sm text-zinc-500'>
-                            {member.email}
+                            {member.email} | {member.section?.name}
                           </p>
                         </div>
                       </div>
@@ -124,24 +159,123 @@ export default function StudentDashboard() {
                 </div>
               </CardContent>
             </Card>
-            <Card className='col-span-2 row-span-2'>
+            <Card className='col-span-2 row-span-1 flex flex-col'>
               <CardHeader>
-                <CardTitle className='text-zinc-600'>Recent Activity</CardTitle>
+                <CardTitle className='text-zinc-600'>Adviser</CardTitle>
               </CardHeader>
+              {adviser?.id && adviser ? (
+                <CardContent className='flex flex-col flex-grow h-0 overflow-y-auto'>
+                  <div className='p-4 border rounded-lg h-full'>
+                    <div className='items-center flex gap-4'>
+                      <Avatar className='ring-2'>
+                        <AvatarFallback>
+                          {adviser.firstName[0]}
+                          {adviser.lastName[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className='font-medium'>
+                          {adviser.firstName} {adviser.lastName}
+                        </p>
+                        <p className='text-sm text-zinc-500'>{adviser.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              ) : null}
             </Card>
-            <Card className='col-span-2 row-span-2'>
-              <CardHeader>
-                <CardTitle className='text-zinc-600'>
-                  My Completed Tasks
-                </CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className='col-span-2 row-span-2'>
+            <Card className='col-span-2 row-span-2 flex flex-col'>
               <CardHeader>
                 <CardTitle className='text-zinc-600'>
                   My Pending Tasks
                 </CardTitle>
               </CardHeader>
+              <CardContent className='flex-grow h-0 flex flex-col gap-2 overflow-y-auto'>
+                {myPendingTasks && myPendingTasks.length > 0 ? (
+                  <>
+                    {myPendingTasks.map((task) => (
+                      <DashboardTask
+                        key={task.id}
+                        task={{
+                          ...task,
+                          createdAt: new Date(task.createdAt),
+                          updatedAt: new Date(task.updatedAt),
+                          dueDate: new Date(task.dueDate),
+                        }}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <div className='flex flex-col items-center'>
+                    <Ghost className='h-8 w-8 text-gray-500' />
+                    <p className='text-gray-500 text-sm font-medium'>
+                      No Pending Tasks
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            <Card className='col-span-2 row-span-2 flex flex-col'>
+              <CardHeader>
+                <CardTitle className='text-zinc-600'>
+                  My Ongoing Tasks
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='flex-grow h-0 flex flex-col gap-2 overflow-y-auto'>
+                {myOngoingTasks && myOngoingTasks.length > 0 ? (
+                  <>
+                    {myOngoingTasks.map((task) => (
+                      <DashboardTask
+                        key={task.id}
+                        task={{
+                          ...task,
+                          createdAt: new Date(task.createdAt),
+                          updatedAt: new Date(task.updatedAt),
+                          dueDate: new Date(task.dueDate),
+                        }}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <div className='flex flex-col items-center'>
+                    <Ghost className='h-8 w-8 text-gray-500' />
+                    <p className='text-gray-500 text-sm font-medium'>
+                      No Ongoing Tasks
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            <Card className='col-span-2 row-span-2 flex flex-col'>
+              <CardHeader>
+                <CardTitle className='text-zinc-600'>
+                  My Completed Tasks
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='flex-grow h-0 flex flex-col gap-2 overflow-y-auto'>
+                {myCompletedTasks && myCompletedTasks.length > 0 ? (
+                  <>
+                    {myCompletedTasks.map((task) => (
+                      <DashboardTask
+                        key={task.id}
+                        task={{
+                          ...task,
+                          createdAt: new Date(task.createdAt),
+                          updatedAt: new Date(task.updatedAt),
+                          dueDate: new Date(task.dueDate),
+                        }}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <div className='flex flex-col items-center'>
+                    <Ghost className='h-8 w-8 text-gray-500' />
+                    <p className='text-gray-500 text-sm font-medium'>
+                      No Completed Tasks
+                    </p>
+                  </div>
+                )}
+              </CardContent>
             </Card>
           </div>
         </div>

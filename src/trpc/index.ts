@@ -6,6 +6,7 @@ import { userRouter } from './routers/user';
 import { groupRouter } from './routers/group';
 import { sectionRouter } from './routers/section';
 import { taskRouter } from './routers/task';
+import { documentRouter } from './routers/document';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -36,6 +37,7 @@ export const appRouter = router({
   group: groupRouter,
   section: sectionRouter,
   task: taskRouter,
+  document: documentRouter,
 });
 
 export type AppRouter = typeof appRouter;

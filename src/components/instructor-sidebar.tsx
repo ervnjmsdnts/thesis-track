@@ -55,7 +55,7 @@ const routes: {
     href: '/approval',
     label: 'Approval',
     Icon: FileCheck2,
-    role: ['STUDENT'],
+    role: ['STUDENT', 'ADVISER'],
   },
 ];
 

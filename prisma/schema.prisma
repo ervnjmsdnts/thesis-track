@@ -41,12 +41,29 @@ model Group {
   id      String  @id @unique @default(cuid())
   members User[]
   title   String? @default("Untitled")
-  pdfFile String?
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   tasks     Task[]
+  documents Document[]
+}
+
+enum DocumentStatus {
+  REJECTED
+  APPROVED
+  PENDING
+}
+
+model Document {
+  id        String         @id @unique @default(cuid())
+  file      String
+  url       String
+  key       String
+  group     Group          @relation(fields: [groupId], references: [id])
+  createdAt DateTime       @default(now())
   comments  Comment[]
+  groupId   String
+  status    DocumentStatus @default(PENDING)
 }
 
 enum TaskStatus {
@@ -86,18 +103,12 @@ model Task {
   assigneeId String
 }
 
-enum CommentStatus {
-  NEW
-  OLD
-}
-
 model Comment {
-  id          String        @id @unique @default(cuid())
-  description String
-  status      CommentStatus @default(NEW)
-  author      User          @relation(fields: [authorId], references: [id])
-  authorId    String
-  createdAt   DateTime
-  group       Group         @relation(fields: [groupId], references: [id])
-  groupId     String
+  id         String    @id @unique @default(cuid())
+  content    String
+  author     User      @relation(fields: [authorId], references: [id])
+  authorId   String
+  createdAt  DateTime  @default(now())
+  document   Document? @relation(fields: [documentId], references: [id])
+  documentId String?
 }

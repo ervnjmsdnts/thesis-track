@@ -2,8 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CollectionMilestone from './collection-milestone';
 import Groups from './groups';
 import PendingApprovals from './pending-approvals';
+import { Role } from '@prisma/client';
 
-export default function InstructorDashboard() {
+export default function StaffDashboard({
+  userRole,
+  userId,
+}: {
+  userRole: Role;
+  userId: string;
+}) {
   return (
     <div className='flex flex-col h-full'>
       <div className='grid grid-cols-7 flex-grow gap-4 h-full'>
@@ -13,7 +20,7 @@ export default function InstructorDashboard() {
               <CardTitle className='text-lg'>Groups</CardTitle>
             </CardHeader>
             <CardContent className='flex-col flex flex-grow'>
-              <Groups />
+              <Groups userRole={userRole} userId={userId} />
             </CardContent>
           </Card>
         </div>

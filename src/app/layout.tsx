@@ -2,6 +2,9 @@ import QueryProvider from '@/components/query-provider';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from '@/components/ui/toaster';
+
+import 'simplebar-react/dist/simplebar.min.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,7 +21,10 @@ export default function RootLayout({
   return (
     <html lang='en' className='light'>
       <QueryProvider>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <Toaster />
+          {children}
+        </body>
       </QueryProvider>
     </html>
   );

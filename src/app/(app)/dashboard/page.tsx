@@ -1,8 +1,8 @@
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import InstructorDashboard from './(instructor)';
 import { redirect } from 'next/navigation';
 import { db } from '@/db';
 import StudentDashboard from './(student)';
+import StaffDashboard from './(staff)';
 
 export default async function Dashboard() {
   const { getUser } = getKindeServerSession();
@@ -16,12 +16,14 @@ export default async function Dashboard() {
     },
   });
 
-  if (!dbUser) return redirect('/auth-callback');
+  if (!dbUser || !dbUser.role || !dbUser.id) return redirect('/auth-callback');
 
   return (
     <div className='flex flex-col h-full'>
       {dbUser.role === 'STUDENT' ? <StudentDashboard /> : null}
-      {/* <InstructorDashboard /> */}
+      {dbUser.role === 'INSTRUCTOR' || dbUser.role === 'ADVISER' ? (
+        <StaffDashboard userRole={dbUser.role} userId={dbUser.id} />
+      ) : null}
     </div>
   );
 }

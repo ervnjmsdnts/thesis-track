@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import UserInfo from '@/components/user-info';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
 
 function Group({ users, title }: { users: User[]; title: string }) {
@@ -64,8 +64,19 @@ function Group({ users, title }: { users: User[]; title: string }) {
   );
 }
 
-export default function Groups() {
-  const { data: groups, isLoading } = trpc.group.getAll.useQuery();
+export default function Groups({
+  userRole,
+  userId,
+}: {
+  userRole: Role;
+  userId: string;
+}) {
+  const { data, isLoading } = trpc.group.getAll.useQuery();
+
+  const groups =
+    userRole === 'ADVISER'
+      ? data?.filter((d) => d.members.some((s) => s.id === userId))
+      : data;
 
   return (
     <div className='flex flex-col h-0 overflow-y-auto flex-grow gap-4'>
@@ -75,11 +86,21 @@ export default function Groups() {
             <Group
               key={group.id}
               title={group.title!}
-              users={group.members.map((member) => ({
-                ...member,
-                createdAt: new Date(member.createdAt),
-                updatedAt: new Date(member.updatedAt),
-              }))}
+              users={
+                userRole === 'ADVISER'
+                  ? group.members
+                      .filter((member) => member.role === 'STUDENT')
+                      .map((member) => ({
+                        ...member,
+                        createdAt: new Date(member.createdAt),
+                        updatedAt: new Date(member.updatedAt),
+                      }))
+                  : group.members.map((member) => ({
+                      ...member,
+                      createdAt: new Date(member.createdAt),
+                      updatedAt: new Date(member.updatedAt),
+                    }))
+              }
             />
           ))}
         </>

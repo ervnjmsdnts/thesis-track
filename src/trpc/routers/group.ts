@@ -9,7 +9,9 @@ const resend = new Resend(process.env.RESEND_API_KEY ?? '');
 
 export const groupRouter = router({
   getAll: publicProcedure.query(async () => {
-    const groups = await db.group.findMany({ include: { members: true } });
+    const groups = await db.group.findMany({
+      include: { members: true, documents: { include: { comments: true } } },
+    });
 
     return groups;
   }),
@@ -56,9 +58,19 @@ export const groupRouter = router({
       where: {
         members: { some: { id: ctx.user.id as unknown as string | undefined } },
       },
-      include: { members: true, tasks: true },
+      include: { members: { include: { section: true } }, tasks: true },
     });
 
     return group;
+  }),
+  getGroupFiles: privateProcedure.query(async ({ ctx }) => {
+    const groupFiles = await db.group.findMany({
+      where: {
+        members: { some: { id: ctx.user.id as unknown as string | undefined } },
+      },
+      include: { documents: true },
+    });
+
+    return groupFiles;
   }),
 });
