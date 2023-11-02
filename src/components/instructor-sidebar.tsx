@@ -4,6 +4,7 @@ import {
   CalendarCheck,
   Contact2,
   FileCheck2,
+  GanttChart,
   LayoutDashboard,
   LucideIcon,
   MessagesSquare,
@@ -56,6 +57,12 @@ const routes: {
     label: 'Approval',
     Icon: FileCheck2,
     role: ['STUDENT', 'ADVISER'],
+  },
+  {
+    href: '/timeline',
+    label: 'Timeline',
+    Icon: GanttChart,
+    role: ['STUDENT'],
   },
 ];
 

@@ -249,9 +249,7 @@ function ActionTask({
                 <Calendar
                   mode='single'
                   disabled={(date) => {
-                    const currentDate = new Date();
-                    currentDate.setHours(0, 0, 0, 0);
-                    return date < currentDate;
+                    return date < new Date();
                   }}
                   selected={field.value}
                   onSelect={field.onChange}
