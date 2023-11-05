@@ -1,6 +1,6 @@
 'use client';
 
-import { Filter } from 'lucide-react';
+import { Filter, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -29,7 +29,7 @@ export default function GroupFilter({
   selectedGroup,
   setSelectedGroup,
 }: {
-  filteredGroup: Group[];
+  filteredGroup: Group[] | undefined;
   selectedGroup: string | undefined;
   setSelectedGroup: Dispatch<SetStateAction<string | undefined>>;
 }) {
@@ -39,7 +39,7 @@ export default function GroupFilter({
   const debouncedText = useDebounce(filterText);
 
   useEffect(() => {
-    const filtered = filteredGroup.filter(
+    const filtered = filteredGroup?.filter(
       (group) =>
         group.title && group.title.toLowerCase().includes(debouncedText),
     );
@@ -66,19 +66,27 @@ export default function GroupFilter({
         </Popover> */}
       </div>
       <div className='grid gap-1.5 h-0 flex-grow overflow-y-auto'>
-        {groups.map((group) => (
-          <Toggle
-            key={group.id}
-            pressed={group.id === selectedGroup}
-            onPressedChange={() =>
-              setSelectedGroup((prev) =>
-                prev === group.id ? undefined : group.id,
-              )
-            }
-            className='truncate px-2 justify-start w-full'>
-            {group.title}
-          </Toggle>
-        ))}
+        {groups && groups.length ? (
+          <>
+            {groups?.map((group) => (
+              <Toggle
+                key={group.id}
+                pressed={group.id === selectedGroup}
+                onPressedChange={() =>
+                  setSelectedGroup((prev) =>
+                    prev === group.id ? undefined : group.id,
+                  )
+                }
+                className='truncate px-2 justify-start w-full'>
+                {group.title}
+              </Toggle>
+            ))}
+          </>
+        ) : (
+          <div className='flex justify-center mt-10'>
+            <Loader2 className='w-4 h-4 animate-spin' />
+          </div>
+        )}
       </div>
     </div>
   );

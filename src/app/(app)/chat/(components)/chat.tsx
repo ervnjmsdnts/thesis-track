@@ -12,59 +12,9 @@ import { SendHorizonal } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import Message from './message';
 
-function Message({
-  userId,
-  authorId,
-  content,
-  firstName,
-  lastName,
-}: {
-  userId: string;
-  authorId: string;
-  content: string;
-  firstName: string;
-  lastName: string;
-}) {
-  const isAuthor = userId === authorId;
-
-  return (
-    <div
-      className={cn('flex gap-2', !isAuthor ? 'justify-start' : 'justify-end')}>
-      {!isAuthor ? (
-        <div>
-          <Avatar>
-            <AvatarFallback>
-              {firstName[0]}
-              {lastName[0]}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      ) : null}
-      <div
-        className={cn(
-          'p-2 max-w-md rounded-br-md rounded-bl-md',
-          !isAuthor
-            ? 'bg-secondary rounded-tr-md rounded-br-md'
-            : 'bg-primary rounded-tl-md text-white',
-        )}>
-        {content}
-      </div>
-      {isAuthor ? (
-        <div>
-          <Avatar>
-            <AvatarFallback>
-              {firstName[0]}
-              {lastName[0]}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-const schema = z.object({ content: z.string() });
+const schema = z.object({ content: z.string().min(1) });
 type Schema = z.infer<typeof schema>;
 
 export default function Chat({
@@ -157,6 +107,9 @@ export default function Chat({
       <div className='flex items-center gap-2'>
         <Input
           {...form.register('content')}
+          className={cn(
+            form.formState.errors.content && 'focus-visible:ring-red-400',
+          )}
           placeholder='Type your message here...'
           disabled={createLoading}
           onKeyDown={(e) => e.key === 'Enter' && form.handleSubmit(submit)()}

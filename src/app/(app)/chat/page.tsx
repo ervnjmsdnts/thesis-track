@@ -2,6 +2,7 @@ import { db } from '@/db';
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { redirect } from 'next/navigation';
 import Chat from './(components)/chat';
+import StaffChat from './(components)/staff-chat';
 
 export default async function ChatPage() {
   const { getUser } = getKindeServerSession();
@@ -29,5 +30,9 @@ export default async function ChatPage() {
 
   if (!group || !group.id) redirect('/auth-callback?origin=dashboard');
 
-  return <Chat userId={dbUser.id} groupId={group.id} />;
+  if (dbUser.role === 'ADVISER') {
+    return <StaffChat userRole={dbUser.role} userId={dbUser.id} />;
+  } else {
+    return <Chat userId={dbUser.id} groupId={group.id} />;
+  }
 }

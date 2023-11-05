@@ -21,6 +21,7 @@ export const chatRouter = router({
   createMessage: privateProcedure
     .input(z.object({ content: z.string(), groupId: z.string() }))
     .mutation(async ({ input, ctx }) => {
+      console.log(input.groupId);
       const chat = await db.chat.create({
         data: {
           content: input.content,

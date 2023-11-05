@@ -46,21 +46,19 @@ export default function StaffApproval({
 
   const [selectedGroup, setSelectedGroup] = useState<string>();
 
-  if (!data) return;
-
   const filteredGroup =
     userRole === 'ADVISER'
-      ? data.filter((group) => group.members.some((m) => m.id === userId))
+      ? data?.filter((group) => group.members.some((m) => m.id === userId))
       : data;
 
-  const documents = filteredGroup.flatMap((group) =>
+  const documents = filteredGroup?.flatMap((group) =>
     group.documents.filter((doc) => doc.groupId === selectedGroup),
   );
 
   return (
     <div className='flex w-full h-full'>
       <GroupFilter
-        filteredGroup={filteredGroup.map((g) => ({
+        filteredGroup={filteredGroup?.map((g) => ({
           ...g,
           createdAt: new Date(g.createdAt),
           updatedAt: new Date(g.updatedAt),
@@ -68,8 +66,12 @@ export default function StaffApproval({
         selectedGroup={selectedGroup}
         setSelectedGroup={setSelectedGroup}
       />
-      <div className='flex-1 px-4 w-full'>
-        {filteredGroup && filteredGroup.length > 0 && selectedGroup ? (
+      <div className='flex-1 pl-4 w-full'>
+        {filteredGroup &&
+        filteredGroup.length > 0 &&
+        selectedGroup &&
+        documents &&
+        documents.length > 0 ? (
           <DocumentList
             documents={documents.map((doc) => ({
               ...doc,
