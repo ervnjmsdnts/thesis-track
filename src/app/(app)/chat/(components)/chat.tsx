@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Chat, User } from '@prisma/client';
 import { SendHorizonal } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -76,6 +76,8 @@ export default function Chat({
 }) {
   const form = useForm<Schema>({ resolver: zodResolver(schema) });
 
+  const scrollRef = useRef<HTMLInputElement>(null);
+
   const { data: chats, isLoading } = trpc.chat.getChats.useQuery({ groupId });
   const { mutate: createMessage, isLoading: createLoading } =
     trpc.chat.createMessage.useMutation({
@@ -117,6 +119,14 @@ export default function Chat({
     }
   }, [chats, isLoading]);
 
+  const scrollToBottom = () => {
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const submit = (data: Schema) => {
     createMessage({ content: data.content, groupId });
   };
@@ -136,6 +146,7 @@ export default function Chat({
                 content={chat.content}
               />
             ))}
+            <div ref={scrollRef}></div>
           </div>
         ) : isLoading ? (
           <div>Loading</div>
