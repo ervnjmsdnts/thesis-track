@@ -29,6 +29,7 @@ model User {
   sectionId String?
   task      Task[]
   comments  Comment[]
+  chats     Chat[]
 }
 
 model Section {
@@ -46,6 +47,7 @@ model Group {
   updatedAt DateTime   @updatedAt
   tasks     Task[]
   documents Document[]
+  chats     Chat[]
 }
 
 enum DocumentStatus {
@@ -111,4 +113,16 @@ model Comment {
   createdAt  DateTime  @default(now())
   document   Document? @relation(fields: [documentId], references: [id])
   documentId String?
+}
+
+model Chat {
+  id        String   @id @unique @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String
 }

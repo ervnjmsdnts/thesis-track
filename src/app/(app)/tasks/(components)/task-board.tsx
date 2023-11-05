@@ -578,6 +578,7 @@ export default function TaskBoard({
 
     return () => {
       pusherClient.unsubscribe(group.id);
+      pusherClient.unbind(group.id);
     };
   }, [group.id, columns]);
 
