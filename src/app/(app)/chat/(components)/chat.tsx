@@ -98,7 +98,6 @@ export default function Chat({
 
     return () => {
       pusherClient.unsubscribe(`chat_${groupId}`);
-      pusherClient.unbind(`chat_${groupId}`);
     };
   }, [groupId]);
 
