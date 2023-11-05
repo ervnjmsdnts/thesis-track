@@ -56,16 +56,8 @@ export default function GroupFilter({
           onChange={(e) => setFilterText(e.target.value)}
           placeholder='Enter thesis title...'
         />
-        {/* <Popover>
-          <PopoverTrigger asChild>
-            <Button variant='ghost' className='text-zinc-500'>
-              <Filter className='w-4 h-4' />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>Filter</PopoverContent>
-        </Popover> */}
       </div>
-      <div className='grid gap-1.5 h-0 flex-grow overflow-y-auto'>
+      <div className='flex flex-col gap-1.5 h-0 flex-grow overflow-y-auto'>
         {groups && groups.length ? (
           <>
             {groups?.map((group) => (

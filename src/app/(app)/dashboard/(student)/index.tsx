@@ -72,6 +72,9 @@ export default function StudentDashboard() {
   const groupCompletedTasks = userGroup?.tasks.filter(
     (t) => t.status === 'COMPLETE',
   );
+  const studentsInGroup = userGroup?.members.filter(
+    (member) => member.role === 'STUDENT',
+  );
 
   return (
     <>
@@ -134,28 +137,30 @@ export default function StudentDashboard() {
               </CardHeader>
               <CardContent className='flex flex-col flex-grow h-0 overflow-y-auto'>
                 <div className='flex flex-col gap-2'>
-                  {userGroup.members.map((member) => (
-                    <div
-                      key={member.id}
-                      className='p-4 border rounded-lg h-full'>
-                      <div className='items-center flex gap-4'>
-                        <Avatar className='ring-2'>
-                          <AvatarFallback>
-                            {member.firstName[0]}
-                            {member.lastName[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className='font-medium'>
-                            {member.firstName} {member.lastName}
-                          </p>
-                          <p className='text-sm text-zinc-500'>
-                            {member.email} | {member.section?.name}
-                          </p>
+                  {userGroup.members
+                    .filter((member) => member.role === 'STUDENT')
+                    .map((member) => (
+                      <div
+                        key={member.id}
+                        className='p-4 border rounded-lg h-full'>
+                        <div className='items-center flex gap-4'>
+                          <Avatar className='ring-2'>
+                            <AvatarFallback>
+                              {member.firstName[0]}
+                              {member.lastName[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className='font-medium'>
+                              {member.firstName} {member.lastName}
+                            </p>
+                            <p className='text-sm text-zinc-500'>
+                              {member.email} | {member.section?.name}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </CardContent>
             </Card>

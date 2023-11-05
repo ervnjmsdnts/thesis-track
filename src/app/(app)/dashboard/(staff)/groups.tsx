@@ -8,9 +8,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Skeleton } from '@/components/ui/skeleton';
 import UserInfo from '@/components/user-info';
 import { Role, User } from '@prisma/client';
-import { Loader2 } from 'lucide-react';
 
 function Group({ users, title }: { users: User[]; title: string }) {
   const maxItems = 4;
@@ -105,8 +105,10 @@ export default function Groups({
           ))}
         </>
       ) : isLoading ? (
-        <div className='flex items-center justify-center'>
-          <Loader2 className='w-8 h-8 animate-spin' />
+        <div className='flex gap-4 flex-col items-center justify-center'>
+          <Skeleton className='p-8 w-full' />
+          <Skeleton className='p-8 w-full' />
+          <Skeleton className='p-8 w-full' />
         </div>
       ) : (
         <div>No content</div>

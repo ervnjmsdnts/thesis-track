@@ -73,14 +73,20 @@ export default function StaffApproval({
         documents &&
         documents.length > 0 ? (
           <DocumentList
-            documents={documents.map((doc) => ({
-              ...doc,
-              createdAt: new Date(doc.createdAt),
-              comments: doc.comments.map((c) => ({
-                ...c,
-                createdAt: new Date(c.createdAt),
-              })),
-            }))}
+            documents={documents
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime(),
+              )
+              .map((doc) => ({
+                ...doc,
+                createdAt: new Date(doc.createdAt),
+                comments: doc.comments.map((c) => ({
+                  ...c,
+                  createdAt: new Date(c.createdAt),
+                })),
+              }))}
           />
         ) : isLoading ? (
           <div className='grid-cols-1 grid gap-2'>

@@ -8,7 +8,7 @@ import { pusherClient } from '@/lib/pusher';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Chat, User } from '@prisma/client';
-import { SendHorizonal } from 'lucide-react';
+import { Ghost, Loader2, SendHorizonal } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -99,9 +99,14 @@ export default function Chat({
             <div ref={scrollRef}></div>
           </div>
         ) : isLoading ? (
-          <div>Loading</div>
+          <div className='flex w-full justify-center mt-16'>
+            <Loader2 className='h-8 w-8 animate-spin' />
+          </div>
         ) : (
-          <div>No content</div>
+          <div className='flex flex-col w-full items-center gap-2 mt-16'>
+            <Ghost className='h-8 w-8 text-zinc-800' />
+            <h3 className='font-semibold text-xl'>No Chats</h3>
+          </div>
         )}
       </div>
       <div className='flex items-center gap-2'>

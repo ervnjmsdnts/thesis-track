@@ -75,4 +75,15 @@ export const documentRouter = router({
         data: { status: input.status },
       });
     }),
+  staffGetPendingDocuments: privateProcedure.query(async ({ ctx }) => {
+    const documents = await db.document.findMany({
+      where: {
+        group: { members: { some: { id: ctx.user.id as unknown as string } } },
+        status: 'PENDING',
+      },
+      include: { group: true },
+    });
+
+    return documents;
+  }),
 });
