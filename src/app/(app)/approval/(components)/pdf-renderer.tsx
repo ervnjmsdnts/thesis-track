@@ -17,8 +17,8 @@ import {
   Loader2,
   ZoomIn,
 } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { UseFormReturn, useForm } from 'react-hook-form';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -28,32 +28,37 @@ import Simplebar from 'simplebar-react';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-export default function PDFRenderer({ url }: { url: string }) {
+export default function PDFRenderer({
+  url,
+  currPage,
+  setCurrPage,
+  numPages,
+  setNumPages,
+  form,
+}: {
+  url: string;
+  currPage: number;
+  setCurrPage: Dispatch<SetStateAction<number>>;
+  numPages: number | undefined;
+  setNumPages: Dispatch<SetStateAction<number | undefined>>;
+  form: UseFormReturn<
+    {
+      page: string;
+    },
+    any,
+    undefined
+  >;
+}) {
   const { toast } = useToast();
 
   const { width, ref } = useResizeDetector();
 
-  const [numPages, setNumPages] = useState<number>();
-  const [currPage, setCurrPage] = useState<number>(1);
   const [scale, setScale] = useState(1);
   const [renderedScale, setRenderedScale] = useState<number | null>(null);
 
   const isLoading = renderedScale !== scale;
 
-  const validator = z.object({
-    page: z
-      .string()
-      .refine((num) => Number(num) > 0 && Number(num) <= numPages!),
-  });
-
-  type Validator = z.infer<typeof validator>;
-
-  const form = useForm<Validator>({
-    defaultValues: { page: '1' },
-    resolver: zodResolver(validator),
-  });
-
-  const submit = (data: Validator) => {
+  const submit = (data: { page: string }) => {
     setCurrPage(Number(data.page));
     form.setValue('page', String(data.page));
   };

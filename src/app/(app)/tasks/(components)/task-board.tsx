@@ -215,11 +215,13 @@ function ActionTask({
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Members</SelectLabel>
-                  {group?.members.map((member) => (
-                    <SelectItem value={member.id} key={member.id}>
-                      {member.firstName} {member.lastName}
-                    </SelectItem>
-                  ))}
+                  {group?.members
+                    .filter((m) => m.role === 'STUDENT')
+                    .map((member) => (
+                      <SelectItem value={member.id} key={member.id}>
+                        {member.firstName} {member.lastName}
+                      </SelectItem>
+                    ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -385,6 +387,8 @@ export default function TaskBoard({
   const [open, setOpen] = useState(false);
   const [selectedTaskStatus, setSelectedTaskStatus] =
     useState<TaskStatus | null>(null);
+
+  console.log({ group });
 
   type Column = {
     name: string;

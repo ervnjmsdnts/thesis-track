@@ -1,8 +1,11 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CollectionMilestone from './collection-milestone';
 import Groups from './groups';
 import PendingApprovals from './pending-approvals';
 import { Role } from '@prisma/client';
+import JoinGroupButton from './join-group-button';
 
 export default function StaffDashboard({
   userRole,
@@ -17,7 +20,10 @@ export default function StaffDashboard({
         <div className='col-span-5'>
           <Card className='h-full flex flex-col'>
             <CardHeader>
-              <CardTitle className='text-lg'>Groups</CardTitle>
+              <div className='flex items-center justify-between'>
+                <CardTitle className='text-lg'>Groups</CardTitle>
+                <JoinGroupButton />
+              </div>
             </CardHeader>
             <CardContent className='flex-col flex flex-grow'>
               <Groups userRole={userRole} userId={userId} />

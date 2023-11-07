@@ -43,12 +43,19 @@ export const documentRouter = router({
       return file;
     }),
   addComment: privateProcedure
-    .input(z.object({ documentId: z.string(), content: z.string() }))
+    .input(
+      z.object({
+        documentId: z.string(),
+        content: z.string(),
+        page: z.number(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       await db.comment.create({
         data: {
           authorId: ctx.user.id as unknown as string,
           content: input.content,
+          page: input.page,
           documentId: input.documentId,
         },
       });

@@ -10,9 +10,10 @@ import {
   TimeScale,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Ghost } from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, TimeScale);
 
@@ -31,8 +32,8 @@ export default function Timeline({ tasks }: { tasks: Task[] }) {
   maxDate.setMonth(maxDate.getMonth() + 1);
   maxDate.setDate(0);
 
-  const min = format(minDate, 'yyyy-MM-dd');
-  const max = format(maxDate, 'yyyy-MM-dd');
+  const min = format(isValid(minDate) ? minDate : new Date(), 'yyyy-MM-dd');
+  const max = format(isValid(maxDate) ? maxDate : new Date(), 'yyyy-MM-dd');
 
   const labels = tasks.map((task) => task.title);
 
@@ -53,47 +54,54 @@ export default function Timeline({ tasks }: { tasks: Task[] }) {
 
   return (
     <div>
-      <Bar
-        data={{
-          labels,
-          datasets: [
-            {
-              data,
-              borderWidth: 0,
-              backgroundColor: randomBackgroundColors,
+      {tasks && tasks.length > 0 ? (
+        <Bar
+          data={{
+            labels,
+            datasets: [
+              {
+                data,
+                borderWidth: 0,
+                backgroundColor: randomBackgroundColors,
+              },
+            ],
+          }}
+          options={{
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+              tooltip: { enabled: false },
+              legend: { display: false },
+              title: { display: false },
             },
-          ],
-        }}
-        options={{
-          indexAxis: 'y',
-          responsive: true,
-          plugins: {
-            tooltip: { enabled: false },
-            legend: { display: false },
-            title: { display: false },
-          },
-          elements: { bar: { borderWidth: 2 } },
-          scales: {
-            y: {
-              ticks: {
-                crossAlign: 'center',
-                callback: function (value) {
-                  const label = this.getLabelForValue(value as number);
-                  return label.split(' ');
+            elements: { bar: { borderWidth: 2 } },
+            scales: {
+              y: {
+                ticks: {
+                  crossAlign: 'center',
+                  callback: function (value) {
+                    const label = this.getLabelForValue(value as number);
+                    return label.split(' ');
+                  },
                 },
               },
+              x: {
+                ticks: { stepSize: 1 },
+                type: 'time',
+                display: true,
+                time: { unit: 'day' },
+                min,
+                max,
+              },
             },
-            x: {
-              ticks: { stepSize: 1 },
-              type: 'time',
-              display: true,
-              time: { unit: 'day' },
-              min,
-              max,
-            },
-          },
-        }}
-      />
+          }}
+        />
+      ) : (
+        <div className='flex flex-col items-center gap-2 mt-16'>
+          <Ghost className='h-8 w-8 text-zinc-800' />
+          <h3 className='font-semibold text-xl'>No Tasks</h3>
+        </div>
+      )}
     </div>
   );
 }

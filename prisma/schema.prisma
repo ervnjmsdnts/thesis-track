@@ -108,6 +108,7 @@ model Task {
 model Comment {
   id         String    @id @unique @default(cuid())
   content    String
+  page       Int
   author     User      @relation(fields: [authorId], references: [id])
   authorId   String
   createdAt  DateTime  @default(now())

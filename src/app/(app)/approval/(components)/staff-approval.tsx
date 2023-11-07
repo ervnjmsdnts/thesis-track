@@ -58,6 +58,7 @@ export default function StaffApproval({
   return (
     <div className='flex w-full h-full'>
       <GroupFilter
+        isLoading={isLoading}
         filteredGroup={filteredGroup?.map((g) => ({
           ...g,
           createdAt: new Date(g.createdAt),

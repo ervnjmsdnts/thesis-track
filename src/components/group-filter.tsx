@@ -1,6 +1,6 @@
 'use client';
 
-import { Filter, Loader2 } from 'lucide-react';
+import { Filter, Ghost, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -28,10 +28,12 @@ export default function GroupFilter({
   filteredGroup,
   selectedGroup,
   setSelectedGroup,
+  isLoading,
 }: {
   filteredGroup: Group[] | undefined;
   selectedGroup: string | undefined;
   setSelectedGroup: Dispatch<SetStateAction<string | undefined>>;
+  isLoading: boolean;
 }) {
   const [filterText, setFilterText] = useState('');
   const [groups, setGroups] = useState(filteredGroup);
@@ -74,9 +76,13 @@ export default function GroupFilter({
               </Toggle>
             ))}
           </>
-        ) : (
+        ) : isLoading ? (
           <div className='flex justify-center mt-10'>
             <Loader2 className='w-4 h-4 animate-spin' />
+          </div>
+        ) : (
+          <div className='flex justify-center mt-12'>
+            <Ghost />
           </div>
         )}
       </div>

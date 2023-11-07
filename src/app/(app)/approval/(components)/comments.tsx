@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { DocumentStatus, Role } from '@prisma/client';
+import { Comment, DocumentStatus, Role, User } from '@prisma/client';
 import { ChevronRight, Ghost, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -22,12 +22,22 @@ export default function Comments({
   userRole,
   status,
   documentId,
+  currPage,
+  comments,
+  getLoading,
+  selectedComment,
 }: {
   userRole: Role;
   status: DocumentStatus;
   documentId: string;
+  currPage: number;
+  comments: (Comment & { author: User })[] | undefined;
+  getLoading: boolean;
+  selectedComment: string | undefined;
 }) {
   const isStaffRole = userRole === 'INSTRUCTOR' || userRole === 'ADVISER';
+
+  const pageComments = comments?.filter((comment) => comment.page === currPage);
 
   const util = trpc.useUtils();
 
@@ -45,13 +55,10 @@ export default function Comments({
     onSuccess: () => router.refresh(),
   });
 
-  const { data: comments, isLoading: getLoading } =
-    trpc.document.getComments.useQuery({ documentId });
-
   const form = useForm<Schema>({ resolver: zodResolver(schema) });
 
   const submit = (data: Schema) => {
-    addComment({ content: data.content, documentId });
+    addComment({ content: data.content, documentId, page: currPage });
   };
 
   return (
@@ -86,16 +93,24 @@ export default function Comments({
         )}
       </div>
       <div className='flex-1 flex flex-col mt-4'>
-        {comments && comments.length > 0 ? (
+        {pageComments && pageComments.length > 0 ? (
           <div
             className={cn(
               'flex flex-col gap-6 items-start flex-grow h-0 overflow-y-auto',
             )}>
-            {comments.map((comment) => (
-              <div key={comment.id} className='text-sm flex items-start gap-4'>
+            {pageComments.map((comment) => (
+              <div
+                key={comment.id}
+                className={cn(
+                  'text-sm flex items-start gap-4 p-1 w-full rounded-lg',
+                  comment.id === selectedComment && 'bg-muted',
+                )}>
                 <Avatar className='w-10 h-10 border'>
                   {/* <AvatarImage alt="@user1" src="/placeholder-user.jpg" /> */}
-                  <AvatarFallback>
+                  <AvatarFallback
+                    className={cn(
+                      comment.id === selectedComment && 'bg-white',
+                    )}>
                     {comment.author.firstName[0]}
                     {comment.author.lastName[0]}
                   </AvatarFallback>
@@ -111,7 +126,9 @@ export default function Comments({
                       })}
                     </div>
                   </div>
-                  <div>{comment.content}</div>
+                  <div className='break-all w-full h-full'>
+                    {comment.content}
+                  </div>
                 </div>
               </div>
             ))}
