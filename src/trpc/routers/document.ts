@@ -58,6 +58,7 @@ export const documentRouter = router({
     .query(async ({ input }) => {
       const comments = await db.comment.findMany({
         where: { documentId: input.documentId },
+        include: { author: true },
       });
 
       return comments;

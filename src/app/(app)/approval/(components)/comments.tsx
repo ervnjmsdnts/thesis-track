@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { DocumentStatusBadge } from './document-status';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { formatDistanceToNow } from 'date-fns';
 
 const schema = z.object({ content: z.string() });
 
@@ -87,12 +89,30 @@ export default function Comments({
         {comments && comments.length > 0 ? (
           <div
             className={cn(
-              'flex flex-col gap-1 items-end flex-grow h-0 overflow-y-auto',
-              !isStaffRole && 'items-start',
+              'flex flex-col gap-6 items-start flex-grow h-0 overflow-y-auto',
             )}>
             {comments.map((comment) => (
-              <div key={comment.id} className='rounded-lg bg-primary flex'>
-                <p className='text-sm text-white p-2'>{comment.content}</p>
+              <div key={comment.id} className='text-sm flex items-start gap-4'>
+                <Avatar className='w-10 h-10 border'>
+                  {/* <AvatarImage alt="@user1" src="/placeholder-user.jpg" /> */}
+                  <AvatarFallback>
+                    {comment.author.firstName[0]}
+                    {comment.author.lastName[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div className='grid gap-1'>
+                  <div className='flex items-center gap-2'>
+                    <div className='font-semibold'>
+                      {comment.author.firstName} {comment.author.lastName}
+                    </div>
+                    <div className='text-zinc-500 text-xs dark:text-zinc-400'>
+                      {formatDistanceToNow(new Date(comment.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </div>
+                  </div>
+                  <div>{comment.content}</div>
+                </div>
               </div>
             ))}
           </div>
