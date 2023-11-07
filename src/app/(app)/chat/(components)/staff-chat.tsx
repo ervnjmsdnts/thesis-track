@@ -99,6 +99,7 @@ export default function StaffChat({
   return (
     <div className='flex h-full w-full'>
       <GroupFilter
+        isLoading={groupLoading}
         filteredGroup={filteredGroup?.map((g) => ({
           ...g,
           createdAt: new Date(g.createdAt),
