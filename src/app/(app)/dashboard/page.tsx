@@ -18,9 +18,17 @@ export default async function Dashboard() {
 
   if (!dbUser || !dbUser.role || !dbUser.id) return redirect('/auth-callback');
 
+  const group = await db.group.findFirst({
+    where: { members: { some: { id: dbUser.id } } },
+  });
+
+  if (!group || !group.id) return redirect('/auth-callback');
+
   return (
     <div className='flex flex-col h-full'>
-      {dbUser.role === 'STUDENT' ? <StudentDashboard /> : null}
+      {dbUser.role === 'STUDENT' ? (
+        <StudentDashboard groupId={group.id} userId={dbUser.id} />
+      ) : null}
       {dbUser.role === 'INSTRUCTOR' || dbUser.role === 'ADVISER' ? (
         <StaffDashboard userRole={dbUser.role} userId={dbUser.id} />
       ) : null}

@@ -29,9 +29,22 @@ import { trpc } from '@/app/_trpc/client';
 import { Check, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function JoinGroupButton() {
   const { data: groups, isLoading } = trpc.group.getAll.useQuery();
+
+  const { toast } = useToast();
+
+  const { mutate: requestToJoinGroup, isLoading: requestLoading } =
+    trpc.joinRequest.requestToJoinGroup.useMutation({
+      onSuccess: () => {
+        toast({
+          title: 'Request Sent',
+          description: 'Your request to join the group has been sent',
+        });
+      },
+    });
 
   const [searchGroup, setSearchGroup] = useState('');
   const [searchStudent, setSearchStudent] = useState('');
@@ -74,6 +87,10 @@ export default function JoinGroupButton() {
 
     return filteredData;
   }, [searchGroup, searchStudent, groups]);
+
+  const submit = () => {
+    requestToJoinGroup({ groupId: value });
+  };
 
   return (
     <Dialog>
@@ -190,7 +207,16 @@ export default function JoinGroupButton() {
               </Command>
             </PopoverContent>
           </Popover>
-          <Button className='self-end'>Request to join</Button>
+          <Button
+            disabled={!value || requestLoading}
+            className='self-end'
+            onClick={submit}>
+            {requestLoading ? (
+              <Loader2 className='h-4 w-4 animate-spin' />
+            ) : (
+              'Request to Join'
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,13 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { LoginLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs/server';
+import Image from 'next/image';
 
 export default function Home() {
   return (
     <div className='flex flex-col min-h-screen bg-white dark:bg-gray-800'>
       <header className='w-full px-8 py-4 bg-white border-b dark:bg-gray-800 dark:border-gray-700'>
         <div className='container mx-auto flex items-center justify-between'>
-          <div className='text-2xl font-bold text-gray-800 dark:text-white'>
-            ThesisTrack
+          <div className='flex items-center gap-2'>
+            <div className='relative h-12 w-12'>
+              <Image fill src='/cics-logo.png' alt='CICS' />
+            </div>
+            <div className='text-2xl font-bold text-gray-800 dark:text-white'>
+              ThesisTrack
+            </div>
           </div>
           <nav className='space-x-4'>
             <Button variant='outline' asChild>

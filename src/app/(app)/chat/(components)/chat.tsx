@@ -1,7 +1,6 @@
 'use client';
 
 import { trpc } from '@/app/_trpc/client';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { pusherClient } from '@/lib/pusher';

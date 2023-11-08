@@ -8,6 +8,7 @@ import { sectionRouter } from './routers/section';
 import { taskRouter } from './routers/task';
 import { documentRouter } from './routers/document';
 import { chatRouter } from './routers/chat';
+import { joinRequestRouter } from './routers/join-request';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -40,6 +41,7 @@ export const appRouter = router({
   task: taskRouter,
   document: documentRouter,
   chat: chatRouter,
+  joinRequest: joinRequestRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -5,6 +5,7 @@ import MilestoneBar from '@/components/milestone-bar';
 import PriorityBadge from '@/components/priority-badge';
 import TypeBadge from '@/components/type-badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -12,10 +13,25 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
 import { Task } from '@prisma/client';
 import { format } from 'date-fns';
-import { Clock, Ghost } from 'lucide-react';
+import {
+  Check,
+  Clock,
+  Ghost,
+  Loader2,
+  MailPlus,
+  Trash2,
+  X,
+} from 'lucide-react';
+import { useState } from 'react';
 
 function DashboardSkeleton() {
   return (
@@ -51,13 +67,60 @@ function DashboardTask({ task }: { task: Task }) {
   );
 }
 
-export default function StudentDashboard() {
+export default function StudentDashboard({
+  groupId,
+  userId,
+}: {
+  groupId: string;
+  userId: string;
+}) {
   const { data: userGroup, isLoading } = trpc.group.getCurrent.useQuery();
-  const { data: user } = trpc.user.getCurrent.useQuery(undefined, {
-    enabled: !!userGroup?.id,
-  });
+  const [openAdviserRequest, setOpenAdviserRequest] = useState(false);
+  const [openStudentRequest, setOpenStudentRequest] = useState(false);
 
-  const myTasks = userGroup?.tasks.filter((t) => t.assigneeId === user?.id);
+  const utils = trpc.useUtils();
+
+  const { toast } = useToast();
+
+  const { data: joinRequests, isLoading: requestsLoading } =
+    trpc.joinRequest.getJoinRequests.useQuery({ groupId: groupId });
+
+  const { mutate: acceptRequest, isLoading: acceptLoading } =
+    trpc.joinRequest.acceptRequest.useMutation({
+      onSuccess: ({ user }) => {
+        toast({
+          title: 'Request Accepted',
+          description: `${user.firstName} ${user.lastName} has been accepted`,
+        });
+        utils.group.getCurrent.invalidate();
+        utils.joinRequest.getJoinRequests.invalidate();
+        setOpenAdviserRequest(false);
+        setOpenStudentRequest(false);
+      },
+    });
+
+  const { mutate: rejectRequest, isLoading: rejectLoading } =
+    trpc.joinRequest.rejectRequest.useMutation({
+      onSuccess: ({ user }) => {
+        toast({
+          title: 'Request Rejected',
+          description: `${user.firstName} ${user.lastName} has been rejected`,
+        });
+        utils.group.getCurrent.invalidate();
+        utils.joinRequest.getJoinRequests.invalidate();
+        setOpenAdviserRequest(false);
+        setOpenStudentRequest(false);
+      },
+    });
+
+  const { mutate: deleteRequest, isLoading: deleteLoading } =
+    trpc.joinRequest.deleteRequest.useMutation({
+      onSuccess: () => {
+        utils.joinRequest.getJoinRequests.invalidate();
+      },
+    });
+
+  const myTasks = userGroup?.tasks.filter((t) => t.assigneeId === userId);
   const myPendingTasks = myTasks?.filter((t) => t.status === 'PENDING');
   const myOngoingTasks = myTasks?.filter((t) => t.status === 'ONGOING');
   const myCompletedTasks = myTasks?.filter((t) => t.status === 'COMPLETE');
@@ -72,8 +135,25 @@ export default function StudentDashboard() {
   const groupCompletedTasks = userGroup?.tasks.filter(
     (t) => t.status === 'COMPLETE',
   );
-  const studentsInGroup = userGroup?.members.filter(
-    (member) => member.role === 'STUDENT',
+
+  const studentRequests = joinRequests
+    ?.filter((request) => request.user.role === 'STUDENT')
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  const adviserRequests = joinRequests
+    ?.filter((request) => request.user.role === 'ADVISER')
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+  const hasPendingAdviserRequests = adviserRequests?.some(
+    (request) => request.status === 'PENDING',
+  );
+  const hasPendingStudentRequests = studentRequests?.some(
+    (request) => request.status === 'PENDING',
   );
 
   return (
@@ -133,7 +213,115 @@ export default function StudentDashboard() {
             </Card>
             <Card className='col-span-2 row-span-1 flex flex-col'>
               <CardHeader>
-                <CardTitle className='text-zinc-600'>Members</CardTitle>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-zinc-600'>Members</CardTitle>
+                  <div className='flex items-center gap-2 h-full'>
+                    <Popover
+                      open={openStudentRequest}
+                      onOpenChange={setOpenStudentRequest}>
+                      <PopoverTrigger className='relative'>
+                        {hasPendingStudentRequests ? (
+                          <span className='flex h-3 w-3 z-10 right-0 absolute'>
+                            <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75'></span>
+                            <span className='relative inline-flex rounded-full h-3 w-3 bg-primary'></span>
+                          </span>
+                        ) : null}
+                        <Avatar>
+                          <AvatarFallback>
+                            <MailPlus className='text-muted-foreground w-5 h-5' />
+                          </AvatarFallback>
+                        </Avatar>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align='end'
+                        className='max-h-64 w-[400px] flex flex-col h-full'>
+                        <div className='flex-grow overflow-y-auto flex flex-col gap-2'>
+                          {studentRequests && studentRequests.length > 0 ? (
+                            <>
+                              {studentRequests.map(
+                                ({ id, user, createdAt, status }) => (
+                                  <div
+                                    key={id}
+                                    className='border rounded-sm p-2'>
+                                    <div className='flex items-center gap-2 justify-between'>
+                                      <div className='grid gap-1'>
+                                        <p className='text-sm'>
+                                          <span className='font-medium'>
+                                            {user.firstName} {user.lastName}
+                                          </span>{' '}
+                                          {status === 'APPROVED'
+                                            ? 'request has been accept'
+                                            : status === 'REJECTED'
+                                            ? 'request has been rejected'
+                                            : 'has requested to join your group'}
+                                        </p>
+                                        <p className='text-xs text-muted-foreground'>
+                                          {format(new Date(createdAt), 'PPp')}
+                                        </p>
+                                      </div>
+                                      {status === 'PENDING' ? (
+                                        <div className='flex items-center gap-1'>
+                                          <Button
+                                            variant='outline'
+                                            disabled={
+                                              acceptLoading || rejectLoading
+                                            }
+                                            onClick={() =>
+                                              acceptRequest({
+                                                groupId,
+                                                requestId: id,
+                                                userRequestId: user.id,
+                                              })
+                                            }
+                                            className='rounded-full hover:bg-green-300 group h-8 w-8 p-0'>
+                                            {acceptLoading ? (
+                                              <Loader2 className='h-4 w-4 animate-spin' />
+                                            ) : (
+                                              <Check className='h-4 w-4 group-hover:text-green-800' />
+                                            )}
+                                          </Button>
+                                          <Button
+                                            variant='outline'
+                                            disabled={
+                                              acceptLoading || rejectLoading
+                                            }
+                                            onClick={() =>
+                                              rejectRequest({
+                                                requestId: id,
+                                              })
+                                            }
+                                            className='rounded-full hover:bg-red-300 group h-8 w-8 p-0'>
+                                            {rejectLoading ? (
+                                              <Loader2 className='h-4 w-4 animate-spin' />
+                                            ) : (
+                                              <X className='h-4 w-4 group-hover:text-red-800' />
+                                            )}
+                                          </Button>
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </>
+                          ) : requestsLoading ? (
+                            <div className='flex justify-center py-4'>
+                              <Loader2 className='animate-spin' />
+                            </div>
+                          ) : (
+                            <div className='flex flex-col items-center'>
+                              <Ghost className='h-6 w-6 text-gray-500' />
+                              <p className='text-gray-500 text-sm font-medium'>
+                                No Join Requests
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <Button variant='outline'>Invite</Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className='flex flex-col flex-grow h-0 overflow-y-auto'>
                 <div className='flex flex-col gap-2'>
@@ -144,7 +332,7 @@ export default function StudentDashboard() {
                         key={member.id}
                         className='p-4 border rounded-lg h-full'>
                         <div className='items-center flex gap-4'>
-                          <Avatar className='ring-2'>
+                          <Avatar>
                             <AvatarFallback>
                               {member.firstName[0]}
                               {member.lastName[0]}
@@ -166,7 +354,129 @@ export default function StudentDashboard() {
             </Card>
             <Card className='col-span-2 row-span-1 flex flex-col'>
               <CardHeader>
-                <CardTitle className='text-zinc-600'>Adviser</CardTitle>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-zinc-600'>Adviser</CardTitle>
+                  <div className='flex items-center gap-2 h-full'>
+                    <Popover
+                      open={openAdviserRequest}
+                      onOpenChange={setOpenAdviserRequest}>
+                      <PopoverTrigger className='relative'>
+                        {hasPendingAdviserRequests ? (
+                          <span className='flex h-3 w-3 z-10 right-0 absolute'>
+                            <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75'></span>
+                            <span className='relative inline-flex rounded-full h-3 w-3 bg-primary'></span>
+                          </span>
+                        ) : null}
+                        <Avatar>
+                          <AvatarFallback>
+                            <MailPlus className='text-muted-foreground w-5 h-5' />
+                          </AvatarFallback>
+                        </Avatar>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align='end'
+                        className='max-h-64 w-[400px] flex flex-col h-full'>
+                        <div className='flex-grow overflow-y-auto flex flex-col gap-2'>
+                          {adviserRequests && adviserRequests.length > 0 ? (
+                            <>
+                              {adviserRequests.map(
+                                ({ id, user, createdAt, status }) => (
+                                  <div
+                                    key={id}
+                                    className='border rounded-sm p-2'>
+                                    <div className='flex items-center gap-2 justify-between'>
+                                      <div className='grid gap-1'>
+                                        <p className='text-sm'>
+                                          <span className='font-medium'>
+                                            {user.firstName} {user.lastName}
+                                          </span>{' '}
+                                          {status === 'APPROVED'
+                                            ? 'request has been accept'
+                                            : status === 'REJECTED'
+                                            ? 'request has been rejected'
+                                            : 'has requested to join your group'}
+                                        </p>
+                                        <p className='text-xs text-muted-foreground'>
+                                          {format(new Date(createdAt), 'PPp')}
+                                        </p>
+                                      </div>
+                                      {status === 'PENDING' ? (
+                                        <div className='flex items-center gap-1'>
+                                          <Button
+                                            variant='outline'
+                                            disabled={
+                                              acceptLoading || rejectLoading
+                                            }
+                                            onClick={() =>
+                                              acceptRequest({
+                                                groupId,
+                                                requestId: id,
+                                                userRequestId: user.id,
+                                              })
+                                            }
+                                            className='rounded-full hover:bg-green-300 group h-8 w-8 p-0'>
+                                            {acceptLoading ? (
+                                              <Loader2 className='h-4 w-4 animate-spin' />
+                                            ) : (
+                                              <Check className='h-4 w-4 group-hover:text-green-800' />
+                                            )}
+                                          </Button>
+                                          <Button
+                                            variant='outline'
+                                            disabled={
+                                              acceptLoading || rejectLoading
+                                            }
+                                            onClick={() =>
+                                              rejectRequest({
+                                                requestId: id,
+                                              })
+                                            }
+                                            className='rounded-full hover:bg-red-300 group h-8 w-8 p-0'>
+                                            {rejectLoading ? (
+                                              <Loader2 className='h-4 w-4 animate-spin' />
+                                            ) : (
+                                              <X className='h-4 w-4 group-hover:text-red-800' />
+                                            )}
+                                          </Button>
+                                        </div>
+                                      ) : (
+                                        <Button
+                                          variant='outline'
+                                          disabled={deleteLoading}
+                                          onClick={() =>
+                                            deleteRequest({ requestId: id })
+                                          }
+                                          className='rounded-full h-8 w-8 p-0 hover:bg-red-300 group'>
+                                          {deleteLoading ? (
+                                            <Loader2 className='h-4 w-4 animate-spin' />
+                                          ) : (
+                                            <Trash2 className='h-4 w-4 group-hover:text-red-800' />
+                                          )}
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </>
+                          ) : requestsLoading ? (
+                            <div className='flex justify-center py-4'>
+                              <Loader2 className='animate-spin' />
+                            </div>
+                          ) : (
+                            <div className='flex flex-col items-center'>
+                              <Ghost className='h-6 w-6 text-gray-500' />
+                              <p className='text-gray-500 text-sm font-medium'>
+                                No Join Requests
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <Button variant='outline'>Invite</Button>
+                  </div>
+                </div>
               </CardHeader>
               {adviser?.id && adviser ? (
                 <CardContent className='flex flex-col flex-grow h-0 overflow-y-auto'>
@@ -187,7 +497,14 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                 </CardContent>
-              ) : null}
+              ) : (
+                <div className='flex flex-col items-center'>
+                  <Ghost className='h-8 w-8 text-gray-500' />
+                  <p className='text-gray-500 text-sm font-medium'>
+                    No Adviser
+                  </p>
+                </div>
+              )}
             </Card>
             <Card className='col-span-2 row-span-2 flex flex-col'>
               <CardHeader>
