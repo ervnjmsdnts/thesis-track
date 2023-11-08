@@ -192,4 +192,28 @@ export const groupRouter = router({
 
       return { success: true };
     }),
+
+  changeProgress: publicProcedure
+    .input(
+      z.object({
+        progression: z.enum([
+          'Topic Approval',
+          'Proposal Paper',
+          'Proposal Defense',
+          'Revisions Chapt 1-3',
+          'Compliance Approval',
+          'Chapter 4-5',
+          'Final Defense',
+          'Final Revisions',
+          'Library',
+        ]),
+        groupId: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await db.group.update({
+        where: { id: input.groupId },
+        data: { progression: input.progression },
+      });
+    }),
 });

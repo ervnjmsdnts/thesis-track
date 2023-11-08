@@ -33,7 +33,7 @@ const routes: {
     href: '/chat',
     label: 'Chat',
     Icon: MessagesSquare,
-    role: ['ADVISER', 'INSTRUCTOR', 'STUDENT'],
+    role: ['ADVISER', 'STUDENT'],
   },
   {
     href: '/users',

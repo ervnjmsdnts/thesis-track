@@ -168,7 +168,10 @@ export default function StudentDashboard({
                 <CardTitle className='text-3xl'>{userGroup.title}</CardTitle>
               </CardHeader>
               <CardContent className='flex flex-grow flex-col'>
-                <MilestoneBar className='h-4 mt-8' percent={50} />
+                <MilestoneBar
+                  className='h-4 mt-8'
+                  milestone={userGroup.progression}
+                />
                 <div className='flex gap-2 w-full h-full'>
                   <Card className='w-full shadow-none border-none'>
                     <div className='flex h-full items-center justify-center flex-col'>

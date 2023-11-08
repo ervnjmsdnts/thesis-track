@@ -14,7 +14,15 @@ import { cn } from '@/lib/utils';
 import { Role, User } from '@prisma/client';
 import { Ghost } from 'lucide-react';
 
-function Group({ users, title }: { users: User[]; title: string }) {
+function Group({
+  users,
+  title,
+  milestone,
+}: {
+  users: User[];
+  title: string;
+  milestone: string;
+}) {
   const maxItems = 4;
   return (
     <div className='border p-3 rounded-lg'>
@@ -64,7 +72,7 @@ function Group({ users, title }: { users: User[]; title: string }) {
           </PopoverContent>
         </Popover>
         <div className='max-w-xs w-full'>
-          <MilestoneBar />
+          <MilestoneBar milestone={milestone} />
         </div>
       </div>
     </div>
@@ -93,6 +101,7 @@ export default function Groups({
             <Group
               key={group.id}
               title={group.title!}
+              milestone={group.progression}
               users={
                 userRole === 'ADVISER'
                   ? group.members

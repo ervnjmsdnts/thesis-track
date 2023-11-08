@@ -40,9 +40,10 @@ model Section {
 }
 
 model Group {
-  id      String  @id @unique @default(cuid())
-  members User[]
-  title   String? @default("Untitled")
+  id          String  @id @unique @default(cuid())
+  members     User[]
+  title       String? @default("Untitled")
+  progression String  @default("Topic Approval")
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

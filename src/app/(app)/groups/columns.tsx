@@ -10,6 +10,16 @@ import { format } from 'date-fns';
 import { Group, Role, User } from '@prisma/client';
 import UserInfo from '@/components/user-info';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import ChangeProgressionDialog from './components/change-progression-dialog';
 
 export const columns = (
   userRole: Role,
@@ -21,6 +31,13 @@ export const columns = (
         <DataTableColumnHeader column={column} title='Thesis Title' />
       ),
       cell: ({ row }) => <p className='font-semibold'>{row.original.title}</p>,
+    },
+    {
+      accessorKey: 'progression',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Progression' />
+      ),
+      cell: ({ row }) => <p>{row.original.progression}</p>,
     },
     {
       accessorKey: 'users',
@@ -89,6 +106,29 @@ export const columns = (
         console.log({ row });
         const date = format(new Date(row.original.createdAt), 'MMM dd, yyyy');
         return date;
+      },
+    },
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='h-8 w-8 p-0'>
+                <span className='sr-only'>Open menu</span>
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <ChangeProgressionDialog
+                currProgress={row.original.progression}
+                groupId={row.original.id}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
       },
     },
   ];
