@@ -1,8 +1,5 @@
-import Image from 'next/image';
 import InviteContent from './(components)/invite-content';
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { db } from '@/db';
-import { group } from 'console';
 import { notFound } from 'next/navigation';
 import Logo from './(components)/logo';
 
@@ -12,10 +9,6 @@ export default async function InvitePage({
   params: { userId: string; groupId: string };
 }) {
   const { userId, groupId } = params;
-
-  const { getUser } = getKindeServerSession();
-
-  const userSession = getUser();
 
   const group = await db.group.findFirst({ where: { id: groupId } });
 
@@ -33,7 +26,6 @@ export default async function InvitePage({
         </div>
         <h1 className='text-4xl font-bold text-primary'>ThesisTrack</h1>
         <InviteContent
-          userSession={userSession}
           userId={user.id}
           groupId={group.id}
           groupTitle={group.title}

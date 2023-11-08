@@ -22,12 +22,13 @@ export default async function Dashboard() {
     where: { members: { some: { id: dbUser.id } } },
   });
 
-  if (!group || !group.id) return redirect('/auth-callback');
+  if (dbUser.role === 'STUDENT' && (!group || !group.id))
+    return redirect('/auth-callback');
 
   return (
     <div className='flex flex-col h-full'>
       {dbUser.role === 'STUDENT' ? (
-        <StudentDashboard groupId={group.id} userId={dbUser.id} />
+        <StudentDashboard groupId={group!.id} userId={dbUser.id} />
       ) : null}
       {dbUser.role === 'INSTRUCTOR' || dbUser.role === 'ADVISER' ? (
         <StaffDashboard userRole={dbUser.role} userId={dbUser.id} />

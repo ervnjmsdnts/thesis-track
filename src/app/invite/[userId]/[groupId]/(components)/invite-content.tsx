@@ -1,17 +1,14 @@
 'use client';
 
 import { trpc } from '@/app/_trpc/client';
-import { KindeUser } from '@kinde-oss/kinde-auth-nextjs/server';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function InviteContent({
-  userSession,
   userId,
   groupId,
   groupTitle,
 }: {
-  userSession: KindeUser;
   userId: string;
   groupId: string;
   groupTitle: string;
