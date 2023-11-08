@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Boxes,
   CalendarCheck,
   Contact2,
   FileCheck2,
@@ -63,6 +64,12 @@ const routes: {
     label: 'Timeline',
     Icon: GanttChart,
     role: ['STUDENT'],
+  },
+  {
+    href: '/sections',
+    label: 'Sections',
+    Icon: Boxes,
+    role: ['INSTRUCTOR'],
   },
 ];
 

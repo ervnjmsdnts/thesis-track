@@ -9,6 +9,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { Group, Role, User } from '@prisma/client';
 import UserInfo from '@/components/user-info';
+import { cn } from '@/lib/utils';
 
 export const columns = (
   userRole: Role,
@@ -40,7 +41,12 @@ export const columns = (
                 {users.slice(0, maxUsers).map((user, index) => {
                   const fallback = `${user.firstName[0]}${user.lastName[0]}`;
                   return (
-                    <Avatar key={index} className='ring-2 ring-primary'>
+                    <Avatar
+                      key={index}
+                      className={cn(
+                        'ring-2 ring-primary',
+                        user.role === 'ADVISER' && 'ring-green-500',
+                      )}>
                       <AvatarFallback>{fallback}</AvatarFallback>
                     </Avatar>
                   );

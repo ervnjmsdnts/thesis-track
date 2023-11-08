@@ -10,7 +10,9 @@ import {
 } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import UserInfo from '@/components/user-info';
+import { cn } from '@/lib/utils';
 import { Role, User } from '@prisma/client';
+import { Ghost } from 'lucide-react';
 
 function Group({ users, title }: { users: User[]; title: string }) {
   const maxItems = 4;
@@ -23,8 +25,13 @@ function Group({ users, title }: { users: User[]; title: string }) {
             <div className='flex -space-x-2'>
               {users
                 .slice(0, maxItems)
-                .map(({ firstName, lastName }, index) => (
-                  <Avatar key={index} className='ring-2 ring-primary'>
+                .map(({ firstName, lastName, role }, index) => (
+                  <Avatar
+                    key={index}
+                    className={cn(
+                      'ring-2 ring-primary',
+                      role === 'ADVISER' && 'ring-green-500',
+                    )}>
                     <AvatarFallback>
                       {firstName[0]}
                       {lastName[0]}
@@ -111,7 +118,10 @@ export default function Groups({
           <Skeleton className='p-8 w-full' />
         </div>
       ) : (
-        <div>No content</div>
+        <div className='flex flex-col items-center'>
+          <Ghost className='h-8 w-8 text-gray-500' />
+          <p className='text-gray-500 text-sm font-medium'>No Groups</p>
+        </div>
       )}
     </div>
   );
