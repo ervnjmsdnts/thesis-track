@@ -30,7 +30,7 @@ export default function AppNavbar({ user }: { user: User }) {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className='w-56 my-1 mx-2'>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          {/* <DropdownMenuItem>Profile</DropdownMenuItem> */}
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <LogoutLink>Log out</LogoutLink>
