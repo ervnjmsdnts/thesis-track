@@ -14,7 +14,7 @@ import {
 import * as React from 'react';
 
 const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
+  ? `https://thesis-track.vercel.app`
   : 'http://localhost:3000';
 
 export default function InviteEmail({
