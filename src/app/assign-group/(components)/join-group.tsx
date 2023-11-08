@@ -1,21 +1,26 @@
-'use client';
-
+import { trpc } from '@/app/_trpc/client';
+import SelectGroup from '@/components/select-group';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { trpc } from '@/app/_trpc/client';
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import SelectGroup from '@/components/select-group';
 
-export default function JoinGroupButton() {
+export default function JoinGroup({
+  createGroup,
+}: {
+  createGroup: () => void;
+}) {
   const { data: groups, isLoading } = trpc.group.getAll.useQuery();
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('');
 
   const { toast } = useToast();
 
@@ -29,23 +34,22 @@ export default function JoinGroupButton() {
       },
     });
 
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState('');
-
   const submit = () => {
     requestToJoinGroup({ groupId: value });
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant='outline'>Join Group</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Join Group</DialogTitle>
-        </DialogHeader>
-        <div className='flex w-full flex-col gap-4'>
+    <div className='flex justify-center items-center w-full h-full'>
+      <Card className='w-[600px]'>
+        <CardHeader>
+          <div className='flex items-center justify-between'>
+            <CardTitle>Create group</CardTitle>
+            <Button variant='link' onClick={createGroup}>
+              Create a group
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className='w-full'>
           <SelectGroup
             open={open}
             setOpen={setOpen}
@@ -63,6 +67,8 @@ export default function JoinGroupButton() {
               })),
             }))}
           />
+        </CardContent>
+        <CardFooter className='flex justify-end'>
           <Button
             disabled={!value || requestLoading}
             className='self-end'
@@ -73,8 +79,8 @@ export default function JoinGroupButton() {
               'Request to Join'
             )}
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

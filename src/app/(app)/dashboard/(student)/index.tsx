@@ -32,6 +32,8 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
+import AdviserInviteButton from './adviser-invite-button';
+import StudentInviteButton from './student-invite-button';
 
 function DashboardSkeleton() {
   return (
@@ -298,7 +300,21 @@ export default function StudentDashboard({
                                             )}
                                           </Button>
                                         </div>
-                                      ) : null}
+                                      ) : (
+                                        <Button
+                                          variant='outline'
+                                          disabled={deleteLoading}
+                                          onClick={() =>
+                                            deleteRequest({ requestId: id })
+                                          }
+                                          className='rounded-full h-8 w-8 p-0 hover:bg-red-300 group'>
+                                          {deleteLoading ? (
+                                            <Loader2 className='h-4 w-4 animate-spin' />
+                                          ) : (
+                                            <Trash2 className='h-4 w-4 group-hover:text-red-800' />
+                                          )}
+                                        </Button>
+                                      )}
                                     </div>
                                   </div>
                                 ),
@@ -319,7 +335,7 @@ export default function StudentDashboard({
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <Button variant='outline'>Invite</Button>
+                    <StudentInviteButton />
                   </div>
                 </div>
               </CardHeader>
@@ -474,7 +490,7 @@ export default function StudentDashboard({
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <Button variant='outline'>Invite</Button>
+                    <AdviserInviteButton />
                   </div>
                 </div>
               </CardHeader>
@@ -482,7 +498,7 @@ export default function StudentDashboard({
                 <CardContent className='flex flex-col flex-grow h-0 overflow-y-auto'>
                   <div className='p-4 border rounded-lg h-full'>
                     <div className='items-center flex gap-4'>
-                      <Avatar className='ring-2'>
+                      <Avatar>
                         <AvatarFallback>
                           {adviser.firstName[0]}
                           {adviser.lastName[0]}

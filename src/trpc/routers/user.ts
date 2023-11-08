@@ -15,11 +15,12 @@ export const userRouter = router({
 
     return user;
   }),
-  getWithNoGroup: privateProcedure.query(async ({ ctx }) => {
+  getStudentsWithNoGroup: privateProcedure.query(async ({ ctx }) => {
     const users = await db.user.findMany({
       where: {
         id: { not: ctx.user.id as unknown as string | undefined },
         group: { none: {} },
+        role: 'STUDENT',
       },
       include: { group: { select: { members: true } } },
     });
