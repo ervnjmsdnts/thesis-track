@@ -30,7 +30,7 @@ export const userRouter = router({
   setRole: privateProcedure
     .input(
       z.object({
-        role: z.enum(['STUDENT', 'ADVISER', 'INSTRUCTOR']),
+        role: z.enum(['STUDENT', 'ADVISER', 'INSTRUCTOR', 'ADMIN']),
       }),
     )
     .mutation(async ({ input, ctx }) => {
