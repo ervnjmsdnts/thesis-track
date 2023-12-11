@@ -12,6 +12,7 @@ enum Role {
   STUDENT
   ADVISER
   INSTRUCTOR
+  ADMIN
 }
 
 model User {

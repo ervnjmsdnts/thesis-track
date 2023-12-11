@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const { getUser } = getKindeServerSession();
   const user = getUser();
 
-  if (!user || !user.id) redirect('/auth-callback?origin=dashboard');
+  if (!user || !user.id) redirect('/auth-callback');
 
   const dbUser = await db.user.findFirst({
     where: {

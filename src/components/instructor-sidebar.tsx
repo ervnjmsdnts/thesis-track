@@ -69,19 +69,33 @@ const routes: {
     href: '/sections',
     label: 'Sections',
     Icon: Boxes,
-    role: ['INSTRUCTOR'],
+    role: ['ADMIN'],
   },
 ];
 
-function NavItems({ label, href, Icon }: (typeof routes)[number]) {
+function NavItems({
+  label,
+  href,
+  Icon,
+  userRole,
+}: (typeof routes)[number] & { userRole: Role }) {
   const pathname = usePathname();
+
+  const rolePath =
+    userRole === 'ADMIN'
+      ? '/ad'
+      : userRole === 'ADVISER'
+      ? '/a'
+      : userRole === 'INSTRUCTOR'
+      ? '/i'
+      : '/s';
 
   return (
     <Button
       asChild
       className='justify-start gap-4'
       variant={pathname.includes(href) ? 'secondary' : 'ghost'}>
-      <Link href={href}>
+      <Link href={`${rolePath}${href}`}>
         <Icon />
         <p>{label}</p>
       </Link>
@@ -104,11 +118,11 @@ export default function InstructorSidebar({
             {routes
               .filter((fil) => fil.role.includes(user.role!))
               .map((route) => (
-                <NavItems {...route} key={route.label} />
+                <NavItems {...route} userRole={user.role!} key={route.label} />
               ))}
           </div>
         </aside>
-        <main className='flex-1 flex-grow p-4'>{children}</main>
+        <main className='flex-1 bg-gray-100 flex-grow p-4'>{children}</main>
       </div>
     </div>
   );

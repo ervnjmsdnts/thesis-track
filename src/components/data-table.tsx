@@ -71,7 +71,7 @@ export default function DataTable<TData, TValue>({
   return (
     <div className='space-y-4 flex flex-col h-full'>
       {Toolbar && <Toolbar table={table} />}
-      <div className='rounded-md flex-grow border'>
+      <div className='rounded-md bg-white flex-grow border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

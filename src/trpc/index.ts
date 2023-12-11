@@ -17,7 +17,7 @@ export const appRouter = router({
 
     if (!user.id || !user.email) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
-    const dbUser = await db.user.findFirst({ where: { id: user.id } });
+    const dbUser = await db.user.findUnique({ where: { id: user.id } });
 
     if (!dbUser) {
       await db.user.create({
@@ -30,10 +30,14 @@ export const appRouter = router({
         },
       });
 
-      return { needsRole: true, success: false };
+      return { needsRole: true, success: false, role: null };
     }
 
-    return { success: true, needsRole: false };
+    if (!dbUser.role) {
+      return { needsRole: true, success: false, role: null };
+    }
+
+    return { success: true, needsRole: false, role: dbUser.role };
   }),
   user: userRouter,
   group: groupRouter,

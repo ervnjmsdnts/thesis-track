@@ -10,13 +10,24 @@ export default function AuthCallBack() {
   const searchParams = useSearchParams();
   const origin = searchParams.get('origin');
 
-  const { data, isLoading } = trpc.authCallback.useQuery(undefined, {
-    onSuccess: ({ needsRole, success }) => {
-      if (success) {
-        router.push(origin ? `/${origin}` : '/dashboard');
+  trpc.authCallback.useQuery(undefined, {
+    onSuccess: ({ needsRole, success, role }) => {
+      if (success && role) {
+        if (role === 'STUDENT') {
+          router.push('/s');
+        }
+        if (role === 'ADVISER') {
+          router.push('/a');
+        }
+        if (role === 'INSTRUCTOR') {
+          router.push('/i');
+        }
+        if (role === 'ADMIN') {
+          router.push('/ad');
+        }
       }
       if (needsRole) {
-        router.push(origin ? `/${origin}` : '/choose-role');
+        router.push('/choose-role');
       }
     },
     onError: (err) => {

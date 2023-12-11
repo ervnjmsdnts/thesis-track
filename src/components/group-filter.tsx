@@ -49,7 +49,7 @@ export default function GroupFilter({
   }, [debouncedText, filteredGroup]);
 
   return (
-    <div className='border-r pr-4 flex flex-col gap-2 w-72'>
+    <div className='flex p-4 rounded-lg bg-white flex-col gap-2 w-72'>
       <h2 className='font-semibold'>Groups</h2>
       <div className='flex items-center'>
         <Input
