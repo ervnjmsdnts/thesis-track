@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -366,6 +366,7 @@ function Task({
           <p>{format(new Date(task?.dueDate), 'PP')}</p>
         </div>
         <Avatar>
+          <AvatarImage src={assignee?.picture as string | undefined} />
           <AvatarFallback>
             {assignee?.firstName[0]}
             {assignee?.lastName[0]}
@@ -387,8 +388,6 @@ export default function TaskBoard({
   const [open, setOpen] = useState(false);
   const [selectedTaskStatus, setSelectedTaskStatus] =
     useState<TaskStatus | null>(null);
-
-  console.log({ group });
 
   type Column = {
     name: string;

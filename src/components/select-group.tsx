@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Command, CommandGroup, CommandInput, CommandItem } from './ui/command';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
 import { Check, Loader2 } from 'lucide-react';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { Group, User } from '@prisma/client';
 
@@ -132,6 +132,9 @@ export default function SelectGroup({
                             key={member.id}
                             className='flex gap-2 items-center'>
                             <Avatar>
+                              <AvatarImage
+                                src={member?.picture as string | undefined}
+                              />
                               {/* <AvatarImage
                                       alt='Member 1'
                                       src='/placeholder-avatar.jpg'

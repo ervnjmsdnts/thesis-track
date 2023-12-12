@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { capitalizeFirstLetter } from '@/helpers';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Section, User } from '@prisma/client';
 
 export const columns: ColumnDef<User & { section: Section | null }>[] = [
@@ -24,6 +24,7 @@ export const columns: ColumnDef<User & { section: Section | null }>[] = [
       return (
         <div className='flex items-center font-medium gap-2'>
           <Avatar>
+            <AvatarImage src={row.original?.picture as string | undefined} />
             <AvatarFallback>{fallback}</AvatarFallback>
           </Avatar>
           <p>{name}</p>

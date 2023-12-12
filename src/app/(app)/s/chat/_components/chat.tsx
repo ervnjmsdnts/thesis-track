@@ -43,7 +43,6 @@ export default function StudentChat({
     pusherClient.subscribe(`chat_${groupId}`);
 
     pusherClient.bind('newMessage', (data: Chat & { author: User }) => {
-      console.log('data');
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -89,6 +88,7 @@ export default function StudentChat({
               <Message
                 key={chat.id}
                 userId={userId}
+                picture={chat.author.picture}
                 authorId={chat.authorId}
                 firstName={chat.author.firstName}
                 lastName={chat.author.lastName}

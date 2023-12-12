@@ -24,8 +24,8 @@ export const appRouter = router({
         data: {
           id: user.id,
           email: user.email,
-          firstName: user.given_name!,
-          lastName: user.family_name!,
+          firstName: user.given_name ?? '',
+          lastName: user.family_name ?? '',
           picture: user.picture,
         },
       });
@@ -35,6 +35,13 @@ export const appRouter = router({
 
     if (!dbUser.role) {
       return { needsRole: true, success: false, role: null };
+    }
+
+    if (!dbUser.picture && user.picture) {
+      await db.user.update({
+        where: { id: dbUser.id },
+        data: { picture: user.picture },
+      });
     }
 
     return { success: true, needsRole: false, role: dbUser.role };

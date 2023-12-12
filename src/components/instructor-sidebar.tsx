@@ -16,6 +16,8 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Role, User } from '@prisma/client';
+import { Badge } from './ui/badge';
+import { cn, toTitleCase } from '@/lib/utils';
 
 const routes: {
   href: string;
@@ -114,6 +116,24 @@ export default function InstructorSidebar({
     <div className='flex h-full'>
       <div className='flex-grow flex'>
         <aside className='w-72 border-r p-4'>
+          <div className='mb-4 p-4 border rounded-lg'>
+            <h2>
+              Hello! <span className='font-semibold'>{user.firstName}</span>
+            </h2>
+            <p
+              className={cn(
+                'text-xs font-medium',
+                user.role === 'ADMIN'
+                  ? 'text-purple-500'
+                  : user.role === 'ADVISER'
+                  ? 'text-yellow-500'
+                  : user.role === 'INSTRUCTOR'
+                  ? 'text-primary'
+                  : 'text-green-500',
+              )}>
+              {toTitleCase(user.role)}
+            </p>
+          </div>
           <div className='flex flex-col gap-2'>
             {routes
               .filter((fil) => fil.role.includes(user.role!))

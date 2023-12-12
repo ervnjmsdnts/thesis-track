@@ -1,10 +1,11 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 export default function Message({
   userId,
   authorId,
   content,
+  picture,
   firstName,
   lastName,
 }: {
@@ -13,6 +14,7 @@ export default function Message({
   content: string;
   firstName: string;
   lastName: string;
+  picture: string | null;
 }) {
   const isAuthor = userId === authorId;
 
@@ -22,6 +24,7 @@ export default function Message({
       {!isAuthor ? (
         <div>
           <Avatar>
+            <AvatarImage src={picture as string | undefined} />
             <AvatarFallback>
               {firstName[0]}
               {lastName[0]}
@@ -41,6 +44,7 @@ export default function Message({
       {isAuthor ? (
         <div>
           <Avatar>
+            <AvatarImage src={picture as string | undefined} />
             <AvatarFallback>
               {firstName[0]}
               {lastName[0]}

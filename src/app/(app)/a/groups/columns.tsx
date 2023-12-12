@@ -1,5 +1,5 @@
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Popover,
   PopoverContent,
@@ -57,6 +57,7 @@ export const columns: ColumnDef<Group & { members: User[] }>[] = [
                       'ring-2 ring-primary',
                       user.role === 'ADVISER' && 'ring-green-500',
                     )}>
+                    <AvatarImage src={user?.picture as string | undefined} />
                     <AvatarFallback>{fallback}</AvatarFallback>
                   </Avatar>
                 );

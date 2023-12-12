@@ -28,8 +28,6 @@ export const taskRouter = router({
           ? Math.max(...groupTasks.map((task) => task.position))
           : 0;
 
-      console.log({ maxPosition });
-
       const newTask = await db.task.create({
         data: {
           ...input,

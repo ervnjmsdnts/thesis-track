@@ -60,7 +60,6 @@ export default function AdviserChat({ userId }: { userId: string }) {
     pusherClient.subscribe(`chat_${selectedGroup!}`);
 
     pusherClient.bind('newMessage', (data: Chat & { author: User }) => {
-      console.log('data');
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -113,6 +112,7 @@ export default function AdviserChat({ userId }: { userId: string }) {
                     authorId={chat.authorId}
                     firstName={chat.author.firstName}
                     lastName={chat.author.lastName}
+                    picture={chat.author.picture}
                     content={chat.content}
                   />
                 ))}

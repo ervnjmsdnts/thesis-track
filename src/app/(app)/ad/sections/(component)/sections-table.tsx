@@ -45,9 +45,7 @@ function AddSectionDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className='self-end' variant='outline'>
-          Add Section
-        </Button>
+        <Button className='self-end'>Add Section</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>Add Section</DialogHeader>

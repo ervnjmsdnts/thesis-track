@@ -2,7 +2,7 @@
 
 import { trpc } from '@/app/_trpc/client';
 import MilestoneBar from '@/components/milestone-bar';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Popover,
   PopoverContent,
@@ -33,13 +33,14 @@ function Group({
             <div className='flex -space-x-2'>
               {users
                 .slice(0, maxItems)
-                .map(({ firstName, lastName, role }, index) => (
+                .map(({ firstName, lastName, role, picture }, index) => (
                   <Avatar
                     key={index}
                     className={cn(
                       'ring-2 ring-primary',
                       role === 'ADVISER' && 'ring-green-500',
                     )}>
+                    <AvatarImage src={picture as string | undefined} />
                     <AvatarFallback>
                       {firstName[0]}
                       {lastName[0]}

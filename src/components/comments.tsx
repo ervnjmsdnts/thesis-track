@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { DocumentStatusBadge } from './document-status';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 
 const schema = z.object({ content: z.string() });
@@ -106,7 +106,9 @@ export default function Comments({
                   comment.id === selectedComment && 'bg-muted',
                 )}>
                 <Avatar className='w-10 h-10 border'>
-                  {/* <AvatarImage alt="@user1" src="/placeholder-user.jpg" /> */}
+                  <AvatarImage
+                    src={comment.author?.picture as string | undefined}
+                  />
                   <AvatarFallback
                     className={cn(
                       comment.id === selectedComment && 'bg-white',
