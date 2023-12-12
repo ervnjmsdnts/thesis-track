@@ -1,7 +1,7 @@
+import { db } from '@/db';
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { redirect } from 'next/navigation';
-import { db } from '@/db';
-import InstructorGroupsTable from './_components/instructor-groups-table';
+import AdminDashboard from './_components/admin-dashboard';
 
 export default async function Page() {
   const { getUser } = getKindeServerSession();
@@ -15,11 +15,7 @@ export default async function Page() {
     },
   });
 
-  if (!dbUser || !dbUser.role) redirect('/auth-callback');
+  if (!dbUser || !dbUser.id) return redirect('/auth-callback');
 
-  return (
-    <div className='w-full h-full'>
-      <InstructorGroupsTable />
-    </div>
-  );
+  return <AdminDashboard userId={dbUser.id} />;
 }

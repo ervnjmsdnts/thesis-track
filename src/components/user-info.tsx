@@ -5,11 +5,13 @@ export default function UserInfo({
   name,
   email,
   fallback,
+  section,
 }: {
   picture: string | null;
   name: string;
   fallback: string;
   email: string;
+  section?: string | null;
 }) {
   return (
     <div className='flex items-center gap-2'>
@@ -18,7 +20,9 @@ export default function UserInfo({
         <AvatarFallback>{fallback}</AvatarFallback>
       </Avatar>
       <div className='text-xs'>
-        <p className='font-medium'>{name}</p>
+        <p className='font-medium'>
+          {name} {section ? `| ${section}` : null}
+        </p>
         <p>{email}</p>
       </div>
     </div>

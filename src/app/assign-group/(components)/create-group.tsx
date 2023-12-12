@@ -63,9 +63,9 @@ export default function CreateGroup({
               description: `An email has been sent to ${studentNames[0]}`,
             });
           }
-          router.replace('/dashboard');
+          router.replace('/s/dashboard');
         } else {
-          router.replace('/dashboard');
+          router.replace('/s/dashboard');
         }
       },
     });
@@ -105,9 +105,6 @@ export default function CreateGroup({
                   )}
                   {...form.register('title')}
                 />
-                <span className='text-muted-foreground text-xs pl-1'>
-                  Leave blank if no title yet
-                </span>
               </div>
             </div>
             <SelectMultipleMembers

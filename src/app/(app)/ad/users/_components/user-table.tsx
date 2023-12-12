@@ -6,7 +6,7 @@ import { trpc } from '@/app/_trpc/client';
 import UserTableToolbar from './table-toolbar';
 
 export default function UserTable() {
-  const { data } = trpc.user.getBasedOnAssignedSection.useQuery();
+  const { data } = trpc.user.getAll.useQuery();
 
   return (
     <div className='flex flex-col h-full'>

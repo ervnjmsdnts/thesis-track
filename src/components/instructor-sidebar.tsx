@@ -27,7 +27,7 @@ const routes: {
     href: '/dashboard',
     label: 'Dashboard',
     Icon: LayoutDashboard,
-    role: ['ADVISER', 'INSTRUCTOR', 'STUDENT'],
+    role: ['ADVISER', 'INSTRUCTOR', 'STUDENT', 'ADMIN'],
   },
   {
     href: '/chat',
@@ -39,13 +39,13 @@ const routes: {
     href: '/users',
     label: 'Users',
     Icon: Contact2,
-    role: ['INSTRUCTOR'],
+    role: ['INSTRUCTOR', 'ADMIN'],
   },
   {
     href: '/groups',
     label: 'Groups',
     Icon: Users2,
-    role: ['ADVISER', 'INSTRUCTOR'],
+    role: ['ADVISER', 'INSTRUCTOR', 'ADMIN'],
   },
   {
     href: '/tasks',

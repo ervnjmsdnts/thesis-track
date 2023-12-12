@@ -1,12 +1,34 @@
 import { db } from '@/db';
-import { publicProcedure, router } from '../trpc';
+import { privateProcedure, publicProcedure, router } from '../trpc';
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 export const sectionRouter = router({
   getAll: publicProcedure.query(async () => {
     const dbSections = await db.section.findMany();
 
     return dbSections;
+  }),
+
+  getAllBasedOnAssignedSections: privateProcedure.query(async ({ ctx }) => {
+    const instructor = await db.user.findUnique({
+      where: { id: ctx.user.id as unknown as string },
+      include: { assignedSections: true },
+    });
+
+    if (!instructor || !instructor.id) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
+    }
+
+    const sectionIds = instructor.assignedSections.map((section) => section.id);
+
+    const sections = await db.section.findMany({
+      where: {
+        id: { in: sectionIds },
+      },
+    });
+
+    return sections;
   }),
 
   updateSection: publicProcedure

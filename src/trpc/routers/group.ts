@@ -8,15 +8,156 @@ import { resend } from '@/lib/resend';
 export const groupRouter = router({
   getAll: publicProcedure.query(async () => {
     const groups = await db.group.findMany({
-      include: { members: true, documents: { include: { comments: true } } },
+      include: {
+        members: { include: { section: true } },
+        documents: { include: { comments: true } },
+      },
     });
 
     return groups;
   }),
+
+  getBasedOnAssignedSection: privateProcedure.query(async ({ ctx }) => {
+    const instructor = await db.user.findUnique({
+      where: { id: ctx.user.id as unknown as string },
+      include: { assignedSections: true },
+    });
+
+    if (!instructor || !instructor.id) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
+    }
+
+    const sectionIds = instructor.assignedSections.map((section) => section.id);
+
+    const groups = await db.group.findMany({
+      where: {
+        members: {
+          some: {
+            sectionId: {
+              in: sectionIds,
+            },
+          },
+        },
+      },
+      include: {
+        members: { include: { section: true } },
+        documents: { include: { comments: true } },
+      },
+    });
+
+    return groups;
+  }),
+
+  updateGroup: privateProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        adviserId: z.string().optional(),
+        title: z.string(),
+        members: z
+          .object({
+            id: z.string(),
+            email: z.string(),
+            firstName: z.string(),
+            lastName: z.string(),
+          })
+          .array(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const group = await db.group.findUnique({
+        where: { id: input.groupId },
+        include: { members: true },
+      });
+
+      if (!group || !group.id) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+
+      const existingMembers = group.members;
+      const currentAdviser = group.members.find((m) => m.role === 'ADVISER');
+      const currentTitle = group.title;
+
+      if (currentTitle !== input.title) {
+        await db.group.update({
+          where: { id: group.id },
+          data: { title: input.title },
+        });
+      }
+
+      const removedMembers = existingMembers.filter((existingMember) => {
+        return (
+          !input.members.some((m) => m.id === existingMember.id) &&
+          existingMember.role === 'STUDENT'
+        );
+      });
+
+      const newMembers = input.members.filter((newMember) => {
+        return !existingMembers.some(
+          (existingMember) => existingMember.id === newMember.id,
+        );
+      });
+
+      if (input.adviserId && currentAdviser?.id !== input.adviserId) {
+        await db.group.update({
+          where: { id: group.id },
+          data: {
+            members: {
+              disconnect: currentAdviser && { id: currentAdviser.id },
+              connect: { id: input.adviserId },
+            },
+          },
+        });
+      }
+
+      if (removedMembers.length > 0 || newMembers.length > 0) {
+        await db.group.update({
+          where: { id: group.id },
+          data: {
+            members: {
+              connect: newMembers.map((newMember) => ({ id: newMember.id })),
+              disconnect: removedMembers.map((removedMember) => ({
+                id: removedMember.id,
+              })),
+            },
+          },
+          include: { members: true },
+        });
+      }
+    }),
+
+  createGroupByInstructor: privateProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        adviserId: z.string().optional(),
+        members: z
+          .object({
+            id: z.string(),
+            email: z.string(),
+            firstName: z.string(),
+            lastName: z.string(),
+          })
+          .array(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await db.group.create({
+        data: {
+          title: input.title,
+          members: {
+            connect: [
+              ...(input.adviserId ? [{ id: input.adviserId }] : []),
+              ...input.members.map((m) => ({ id: m.id })),
+            ],
+          },
+        },
+      });
+    }),
   createGroupByStudent: privateProcedure
     .input(
       z.object({
-        title: z.string().nullable(),
+        title: z.string(),
         members: z
           .object({
             id: z.string(),

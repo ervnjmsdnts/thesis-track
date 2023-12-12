@@ -5,7 +5,7 @@ import CollectionMilestone from './collection-milestone';
 import Groups from './groups';
 import PendingApprovals from './pending-approvals';
 
-export default function InstructorDashboard({ userId }: { userId: string }) {
+export default function AdminDashboard({ userId }: { userId: string }) {
   return (
     <div className='flex flex-col h-full'>
       <div className='grid grid-cols-7 flex-grow gap-4 h-full'>
@@ -15,7 +15,7 @@ export default function InstructorDashboard({ userId }: { userId: string }) {
               <CardTitle className='text-lg'>Groups</CardTitle>
             </CardHeader>
             <CardContent className='flex-col flex flex-grow'>
-              <Groups />
+              <Groups userId={userId} />
             </CardContent>
           </Card>
         </div>

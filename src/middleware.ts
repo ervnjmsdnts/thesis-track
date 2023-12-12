@@ -13,7 +13,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   if (authenticated && pathname === '/')
-    return NextResponse.redirect(new URL('/dashboard', req.url));
+    return NextResponse.redirect(new URL('/auth-callback', req.url));
 }
 
 export const config = {

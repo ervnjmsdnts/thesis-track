@@ -1,7 +1,7 @@
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { redirect } from 'next/navigation';
 import { db } from '@/db';
-import InstructorGroupsTable from './_components/instructor-groups-table';
+import AdminGroupsTable from './_components/admin-groups-table';
 
 export default async function Page() {
   const { getUser } = getKindeServerSession();
@@ -19,7 +19,7 @@ export default async function Page() {
 
   return (
     <div className='w-full h-full'>
-      <InstructorGroupsTable />
+      <AdminGroupsTable />
     </div>
   );
 }

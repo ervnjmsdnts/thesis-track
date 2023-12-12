@@ -13,13 +13,18 @@ export default function UserTableToolbar<TData>({
 }) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const { data: dbSections } =
-    trpc.section.getAllBasedOnAssignedSections.useQuery();
+  const { data: dbSections } = trpc.section.getAll.useQuery();
 
   const sections = dbSections?.map((s) => ({
     label: s.name,
     value: s.name,
   }));
+
+  const roles = [
+    { label: 'Adviser', value: 'ADVISER' },
+    { label: 'Instructor', value: 'INSTRUCTOR' },
+    { label: 'Student', value: 'STUDENT' },
+  ];
 
   return (
     <div className='flex gap-2 items-center'>
@@ -36,6 +41,13 @@ export default function UserTableToolbar<TData>({
           column={table.getColumn('section_name')}
           title='Section'
           options={sections}
+        />
+      ) : null}
+      {table.getColumn('role') ? (
+        <DataTableFacetedFilter
+          column={table.getColumn('role')}
+          title='Role'
+          options={roles}
         />
       ) : null}
       {isFiltered ? (

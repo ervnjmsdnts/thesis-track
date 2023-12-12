@@ -15,31 +15,61 @@ import {
 import { cn } from '@/lib/utils';
 import { trpc } from '@/app/_trpc/client';
 import { User } from '@prisma/client';
-import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 
 export default function SelectMultipleMembers({
   selectedUsers,
   setSelectedUsers,
+  currentMembers,
 }: {
   selectedUsers: User[];
   setSelectedUsers: Dispatch<SetStateAction<User[]>>;
+  currentMembers?: User[];
 }) {
   const { data: students, isLoading } =
     trpc.user.getStudentsWithNoGroup.useQuery();
   const [open, setOpen] = useState(false);
   const [searchStudent, setSearchStudent] = useState('');
 
-  const filteredStudents = useMemo(() => {
+  useEffect(() => {
+    if (currentMembers && currentMembers.length > 0) {
+      setSelectedUsers(currentMembers);
+    }
+  }, [currentMembers, setSelectedUsers]);
+
+  const mergedStudents = useMemo(() => {
     if (!students) return [];
 
-    return !searchStudent
-      ? students
-      : students.filter((student) => {
-          const name = `${student.firstName} ${student.lastName}`;
+    let merged: User[] = [
+      ...students.map((s) => ({
+        ...s,
+        createdAt: new Date(s.createdAt),
+        updatedAt: new Date(s.createdAt),
+      })),
+    ];
 
+    if (currentMembers) {
+      merged = [
+        ...merged,
+        ...currentMembers.map((m) => ({
+          ...m,
+          createdAt: new Date(m.createdAt),
+          updatedAt: new Date(m.updatedAt),
+        })),
+      ];
+    }
+
+    return merged;
+  }, [students, currentMembers]);
+
+  const filteredStudents = useMemo(() => {
+    return !searchStudent
+      ? mergedStudents
+      : mergedStudents.filter((student) => {
+          const name = `${student.firstName} ${student.lastName}`;
           return name.toLowerCase().includes(searchStudent.toLowerCase());
         });
-  }, [students, searchStudent]);
+  }, [searchStudent, mergedStudents]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

@@ -17,7 +17,7 @@ export default function ChooseRole() {
   const { mutate: setUserRole, isLoading } = trpc.user.setRole.useMutation({
     onSuccess: () => {
       if (role === 'ADVISER') {
-        router.replace('/dashboard');
+        router.replace('/a/dashboard');
       }
       if (role === 'STUDENT') {
         router.replace('/choose-section');

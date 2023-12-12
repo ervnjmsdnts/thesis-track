@@ -16,13 +16,14 @@ enum Role {
 }
 
 model User {
-  id        String   @id @unique
-  email     String   @unique
-  firstName String
-  lastName  String
-  picture   String?
-  role      Role?
-  section   Section? @relation(fields: [sectionId], references: [id])
+  id               String    @id @unique
+  email            String    @unique
+  firstName        String
+  lastName         String
+  picture          String?
+  role             Role?
+  section          Section?  @relation("PrimarySection", fields: [sectionId], references: [id])
+  assignedSections Section[] @relation("Manager")
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -35,16 +36,17 @@ model User {
 }
 
 model Section {
-  id   String @id @unique @default(cuid())
-  name String @unique
-  user User[]
+  id      String @id @unique @default(cuid())
+  name    String @unique
+  user    User[] @relation("PrimarySection")
+  manager User[] @relation("Manager")
 }
 
 model Group {
-  id          String  @id @unique @default(cuid())
+  id          String @id @unique @default(cuid())
   members     User[]
-  title       String? @default("Untitled")
-  progression String  @default("Topic Approval")
+  title       String
+  progression String @default("Topic Approval")
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

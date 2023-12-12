@@ -5,12 +5,20 @@ import { columns } from '../columns';
 import { trpc } from '@/app/_trpc/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Ghost } from 'lucide-react';
+import CreateGroupDialog from './create-group-dialog';
+import TableToolbar from './table-toolbar';
 
-export default function AdviserGroupsTable({ userId }: { userId: string }) {
+export default function AdminGroupsTable() {
   const { data: groups, isLoading } = trpc.group.getAll.useQuery();
 
+  let groupTitles: (string | null)[] = [];
+
+  if (groups && groups.length > 0) {
+    groupTitles = groups.map((group) => group.title);
+  }
+
   return (
-    <>
+    <div className='flex flex-col h-full'>
       {groups && groups.length > 0 ? (
         <DataTable
           data={groups.map((d) => ({
@@ -23,6 +31,8 @@ export default function AdviserGroupsTable({ userId }: { userId: string }) {
               updatedAt: new Date(m.updatedAt),
             })),
           }))}
+          CreateButtons={<CreateGroupDialog groupTitles={groupTitles} />}
+          Toolbar={TableToolbar}
           columns={columns}
         />
       ) : isLoading ? (
@@ -33,6 +43,6 @@ export default function AdviserGroupsTable({ userId }: { userId: string }) {
           <p className='text-gray-500 text-sm font-medium'>No Groups</p>
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -2,7 +2,6 @@ import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/server';
 import AssignGroup from './(components)/assign-group';
 import { Button } from '@/components/ui/button';
 import { db } from '@/db';
-import { Group } from '@prisma/client';
 
 export default async function AssignGroupPage() {
   const groups = await db.group.findMany();

@@ -79,9 +79,8 @@ function Group({
   );
 }
 
-export default function Groups() {
-  const { data: groups, isLoading } =
-    trpc.group.getBasedOnAssignedSection.useQuery();
+export default function Groups({ userId }: { userId: string }) {
+  const { data: groups, isLoading } = trpc.group.getAll.useQuery();
 
   return (
     <div className='flex flex-col h-0 overflow-y-auto flex-grow gap-4'>

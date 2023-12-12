@@ -25,12 +25,14 @@ import {
   Table,
 } from './ui/table';
 import { Collapsible, CollapsibleContent } from './ui/collapsible';
+import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   Toolbar?: ComponentType<{ table: TableType<TData> }>;
   Pagination?: ReactNode;
+  CreateButtons?: ReactNode;
   Expandable?: ReactNode;
 }
 
@@ -40,6 +42,7 @@ export default function DataTable<TData, TValue>({
   Toolbar,
   Pagination,
   Expandable,
+  CreateButtons,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -70,7 +73,16 @@ export default function DataTable<TData, TValue>({
 
   return (
     <div className='space-y-4 flex flex-col h-full'>
-      {Toolbar && <Toolbar table={table} />}
+      {Toolbar || CreateButtons ? (
+        <div className={cn('flex items-center justify-between')}>
+          <div className={cn(!CreateButtons && 'justify-self-start')}>
+            {Toolbar && <Toolbar table={table} />}
+          </div>
+          <div className={cn(!Toolbar && 'justify-self-end')}>
+            {CreateButtons}
+          </div>
+        </div>
+      ) : null}
       <div className='rounded-md bg-white flex-grow border'>
         <Table>
           <TableHeader>
