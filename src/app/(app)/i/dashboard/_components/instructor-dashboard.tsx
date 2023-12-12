@@ -1,11 +1,14 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import CollectionMilestone from './collection-milestone';
 import Groups from './groups';
 import PendingApprovals from './pending-approvals';
+import { trpc } from '@/app/_trpc/client';
+import CollectionMilestone from '@/components/collection-milestone';
 
 export default function InstructorDashboard({ userId }: { userId: string }) {
+  const { data: groups, isLoading } =
+    trpc.group.getBasedOnAssignedSection.useQuery();
   return (
     <div className='flex flex-col h-full'>
       <div className='grid grid-cols-7 flex-grow gap-4 h-full'>
@@ -27,7 +30,13 @@ export default function InstructorDashboard({ userId }: { userId: string }) {
               </CardTitle>
             </CardHeader>
             <CardContent className='flex justify-center items-center'>
-              <CollectionMilestone />
+              <CollectionMilestone
+                groups={groups?.map((group) => ({
+                  ...group,
+                  createdAt: new Date(group.createdAt),
+                  updatedAt: new Date(group.updatedAt),
+                }))}
+              />
             </CardContent>
           </Card>
           <Card className='flex flex-col row-span-6'>

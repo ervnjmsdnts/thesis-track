@@ -12,23 +12,33 @@ export default function TableToolbar<TData>({
 }) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const { data: groups } = trpc.group.getAll.useQuery();
-
-  const mappedGroups = groups?.map((group) => ({
-    label: group.title,
-    value: group.title,
-  }));
-
   const progressions: { label: Progression; value: Progression }[] = [
     { label: 'Topic Approval', value: 'Topic Approval' },
-    { label: 'Proposal Paper', value: 'Proposal Paper' },
+    { label: 'Adviser Invitation', value: 'Adviser Invitation' },
+    { label: 'Chapt 1-3', value: 'Chapt 1-3' },
+    { label: 'Chapt 1-3 Approval', value: 'Chapt 1-3 Approval' },
+    { label: 'Proposal Paper Forms', value: 'Proposal Paper Forms' },
     { label: 'Proposal Defense', value: 'Proposal Defense' },
+    {
+      label: 'Compliance Matrix (Proposal)',
+      value: 'Compliance Matrix (Proposal)',
+    },
     { label: 'Revisions Chapt 1-3', value: 'Revisions Chapt 1-3' },
-    { label: 'Compliance Approval', value: 'Compliance Approval' },
-    { label: 'Chapter 4-5', value: 'Chapter 4-5' },
-    { label: 'Final Defense', value: 'Final Defense' },
-    { label: 'Final Revisions', value: 'Final Revisions' },
-    { label: 'Library', value: 'Library' },
+    { label: 'System Development', value: 'System Development' },
+    {
+      label: 'Compliance Matrix Approval (Proposal)',
+      value: 'Compliance Matrix Approval (Proposal)',
+    },
+    { label: 'Chapt 4-5', value: 'Chapt 4-5' },
+    { label: 'Oral Defense Form', value: 'Oral Defense Form' },
+    { label: 'Oral Defense', value: 'Oral Defense' },
+    { label: 'Compliance Matrix (Oral)', value: 'Compliance Matrix (Oral)' },
+    { label: 'Capstone Paper Revisions', value: 'Capstone Paper Revisions' },
+    {
+      label: 'Compliance Matrix Approval (Oral)',
+      value: 'Compliance Matrix Approval (Oral)',
+    },
+    { label: 'Library Hardbound', value: 'Library Hardbound' },
   ];
 
   return (
