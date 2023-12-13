@@ -4,7 +4,7 @@ import { trpc } from '@/app/_trpc/client';
 import MilestoneBar from '@/components/milestone-bar';
 import PriorityBadge from '@/components/priority-badge';
 import TypeBadge from '@/components/type-badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -352,6 +352,9 @@ export default function StudentDashboard({
                         className='p-4 border rounded-lg h-full'>
                         <div className='items-center flex gap-4'>
                           <Avatar>
+                            <AvatarImage
+                              src={member.picture as string | undefined}
+                            />
                             <AvatarFallback>
                               {member.firstName[0]}
                               {member.lastName[0]}
@@ -502,6 +505,9 @@ export default function StudentDashboard({
                   <div className='p-4 border rounded-lg h-full'>
                     <div className='items-center flex gap-4'>
                       <Avatar>
+                        <AvatarImage
+                          src={adviser.picture as string | undefined}
+                        />
                         <AvatarFallback>
                           {adviser.firstName[0]}
                           {adviser.lastName[0]}
