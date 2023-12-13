@@ -23,7 +23,7 @@ function UploadDropzone() {
 
   const { mutate: startPolling } = trpc.document.getDocument.useMutation({
     onSuccess: (file) => {
-      router.push(`/approval/${file.id}`);
+      router.push(`/s/approval/${file.id}`);
     },
     retry: true,
     retryDelay: 500,
