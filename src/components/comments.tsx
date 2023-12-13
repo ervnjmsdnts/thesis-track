@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { DocumentStatusBadge } from './document-status';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
+import { Badge } from './ui/badge';
 
 const schema = z.object({ content: z.string() });
 
@@ -66,28 +67,42 @@ export default function Comments({
       <div className='flex items-center justify-between'>
         <h2 className='text-lg font-semibold'>Comments</h2>
         {isStaffRole ? (
-          <div className='space-x-2'>
-            <Button
-              onClick={() => updateStatus({ documentId, status: 'APPROVED' })}
-              disabled={status !== 'PENDING'}
-              variant='outline'
-              className={cn(
-                'border border-green-400 text-green-400 hover:bg-green-400/80 hover:text-white',
-                status === 'APPROVED' && 'border-none bg-green-400 text-white',
-              )}>
-              Approve
-            </Button>
-            <Button
-              variant='outline'
-              className={cn(
-                'border border-red-400 text-red-400 hover:bg-red-400/80 hover:text-white',
-                status === 'REJECTED' && 'border-none bg-red-400 text-white',
-              )}
-              disabled={status !== 'PENDING'}
-              onClick={() => updateStatus({ documentId, status: 'REJECTED' })}>
-              Reject
-            </Button>
-          </div>
+          <>
+            {status === 'PENDING' ? (
+              <div className='space-x-2'>
+                <Button
+                  onClick={() =>
+                    updateStatus({ documentId, status: 'APPROVED' })
+                  }
+                  disabled={status !== 'PENDING'}
+                  variant='outline'
+                  className={cn(
+                    'border border-green-400 text-green-400 hover:bg-green-400/80 hover:text-white',
+                  )}>
+                  Approve
+                </Button>
+                <Button
+                  variant='outline'
+                  className={cn(
+                    'border border-red-400 text-red-400 hover:bg-red-400/80 hover:text-white',
+                  )}
+                  disabled={status !== 'PENDING'}
+                  onClick={() =>
+                    updateStatus({ documentId, status: 'REJECTED' })
+                  }>
+                  Reject
+                </Button>
+              </div>
+            ) : (
+              <>
+                {status === 'APPROVED' ? (
+                  <Badge className='bg-green-500'>Approved</Badge>
+                ) : (
+                  <Badge className='bg-red-500'>Rejected</Badge>
+                )}
+              </>
+            )}
+          </>
         ) : (
           <DocumentStatusBadge status={status} />
         )}
