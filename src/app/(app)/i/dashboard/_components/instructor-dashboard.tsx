@@ -2,9 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Groups from './groups';
-import PendingApprovals from './pending-approvals';
 import { trpc } from '@/app/_trpc/client';
 import CollectionMilestone from '@/components/collection-milestone';
+import Statistics from './statistics';
 
 export default function InstructorDashboard({ userId }: { userId: string }) {
   const { data: groups, isLoading } =
@@ -41,10 +41,10 @@ export default function InstructorDashboard({ userId }: { userId: string }) {
           </Card>
           <Card className='flex flex-col row-span-6'>
             <CardHeader>
-              <CardTitle className='text-lg'>Pending Approvals</CardTitle>
+              <CardTitle className='text-lg'>Statistics</CardTitle>
             </CardHeader>
             <CardContent className='flex flex-col flex-grow'>
-              <PendingApprovals />
+              <Statistics />
             </CardContent>
           </Card>
         </div>

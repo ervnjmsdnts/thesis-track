@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Groups from './groups';
-import PendingApprovals from './pending-approvals';
+import Statistics from './statistics';
 import CollectionMilestone from '@/components/collection-milestone';
 import { trpc } from '@/app/_trpc/client';
 
@@ -43,7 +43,7 @@ export default function AdminDashboard({ userId }: { userId: string }) {
               <CardTitle className='text-lg'>Pending Approvals</CardTitle>
             </CardHeader>
             <CardContent className='flex flex-col flex-grow'>
-              <PendingApprovals />
+              <Statistics />
             </CardContent>
           </Card>
         </div>
