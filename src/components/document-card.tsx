@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { MessageSquareIcon, Plus } from 'lucide-react';
 import { DocumentStatusBadge } from './document-status';
 import { useRouter } from 'next/navigation';
-import { Comment, DocumentStatus } from '@prisma/client';
+import { Comment, DocumentStatus, Role } from '@prisma/client';
 
 export default function DocumentCard({
   id,
@@ -13,18 +13,38 @@ export default function DocumentCard({
   createdAt,
   comments,
   status,
+  role,
 }: {
   id: string;
   file: string;
   createdAt: Date;
   comments: Comment[];
   status: DocumentStatus;
+  role: Role;
 }) {
   const router = useRouter();
+  // if (role === 'STUDENT') {
+  //           router.push('/s');
+  //         }
+  //         if (role === 'ADVISER') {
+  //           router.push('/a');
+  //         }
+  //         if (role === 'INSTRUCTOR') {
+  //           router.push('/i');
+  //         }
+  //         if (role === 'ADMIN') {
+  //           router.push('/ad');
+  //         }
 
   return (
     <Card
-      onClick={() => router.push(`/approval/${id}`)}
+      onClick={() =>
+        router.push(
+          `${
+            role === 'STUDENT' ? '/s' : role === 'ADVISER' ? '/a' : '/i'
+          }/approval/${id}`,
+        )
+      }
       className='hover:shadow-lg cursor-pointer'>
       <CardHeader>
         <CardTitle className='text-xl truncate'>{file}</CardTitle>

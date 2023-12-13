@@ -30,7 +30,7 @@ function Approval({
           </p>
         </div>
         <Button asChild>
-          <Link href={`/approval/${fileId}`}>View</Link>
+          <Link href={`/ad/approval/${fileId}`}>View</Link>
         </Button>
       </div>
     </div>

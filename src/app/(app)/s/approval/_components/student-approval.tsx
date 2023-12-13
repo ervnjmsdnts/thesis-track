@@ -4,9 +4,10 @@ import { trpc } from '@/app/_trpc/client';
 import DocumentCard from '@/components/document-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import UploadButton from '@/components/upload-button';
+import { Role } from '@prisma/client';
 import { Ghost } from 'lucide-react';
 
-export default function StudentApproval() {
+export default function StudentApproval({ role }: { role: Role }) {
   const { data: groupDocuments, isLoading } =
     trpc.document.groupDocuments.useQuery();
 
@@ -26,6 +27,7 @@ export default function StudentApproval() {
             )
             .map((document, index) => (
               <DocumentCard
+                role={role}
                 id={document.id}
                 file={document.file}
                 comments={document.comments.map((item) => ({

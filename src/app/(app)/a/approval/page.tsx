@@ -15,7 +15,7 @@ export default async function Page() {
     },
   });
 
-  if (!dbUser || !dbUser.id) redirect('/auth-callback');
+  if (!dbUser || !dbUser.id || !dbUser.role) redirect('/auth-callback');
 
-  return <AdviserApproval userId={dbUser.id} />;
+  return <AdviserApproval userId={dbUser.id} role={dbUser.role} />;
 }

@@ -10,8 +10,10 @@ import DocumentCard from '@/components/document-card';
 
 function DocumentList({
   documents,
+  role,
 }: {
   documents: (Document & { comments: Comment[] })[];
+  role: Role;
 }) {
   if (!documents || documents.length === 0) {
     return null;
@@ -20,6 +22,7 @@ function DocumentList({
     <div className='grid grid-cols-3 gap-2'>
       {documents.map((doc) => (
         <DocumentCard
+          role={role}
           key={doc.id}
           id={doc.id}
           comments={doc.comments.map((c) => ({
@@ -35,7 +38,13 @@ function DocumentList({
   );
 }
 
-export default function AdviserApproval({ userId }: { userId: string }) {
+export default function AdviserApproval({
+  userId,
+  role,
+}: {
+  userId: string;
+  role: Role;
+}) {
   const { data, isLoading } = trpc.group.getAll.useQuery();
 
   const [selectedGroup, setSelectedGroup] = useState<string>();
@@ -66,6 +75,7 @@ export default function AdviserApproval({ userId }: { userId: string }) {
         documents &&
         documents.length > 0 ? (
           <DocumentList
+            role={role}
             documents={documents
               .sort(
                 (a, b) =>

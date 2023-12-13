@@ -18,5 +18,5 @@ export default async function Page() {
   if (!dbUser || !dbUser.role || !dbUser.id)
     redirect('/auth-callback?origin=dashboard');
 
-  return <StudentApproval />;
+  return <StudentApproval role={dbUser.role} />;
 }
