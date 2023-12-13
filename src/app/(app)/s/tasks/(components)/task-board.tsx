@@ -1,17 +1,9 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 import { cn, toTitleCase } from '@/lib/utils';
 import { Group, Task, TaskStatus, TaskTypes, User } from '@prisma/client';
 import {
@@ -310,25 +302,25 @@ function Task({
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuGroup>
-                <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-                  <SheetTrigger asChild onSelect={(e) => e.preventDefault()}>
+                <Dialog open={sheetOpen} onOpenChange={setSheetOpen}>
+                  <DialogTrigger asChild onSelect={(e) => e.preventDefault()}>
                     <DropdownMenuItem>
                       <Pencil className='mr-2 h-4 w-4' />
                       <span>Edit</span>
                     </DropdownMenuItem>
-                  </SheetTrigger>
-                  <SheetContent className='flex flex-col'>
-                    <SheetHeader>
-                      <SheetTitle>{toTitleCase(task.status)}</SheetTitle>
-                    </SheetHeader>
+                  </DialogTrigger>
+                  <DialogContent className='flex flex-col'>
+                    <DialogHeader>
+                      <DialogTitle>{toTitleCase(task.status)}</DialogTitle>
+                    </DialogHeader>
                     <ActionTask
                       taskStatus={task.status}
                       closeSheet={() => setSheetOpen(false)}
                       group={group}
                       task={task}
                     />
-                  </SheetContent>
-                </Sheet>
+                  </DialogContent>
+                </Dialog>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild onSelect={(e) => e.preventDefault()}>
                     <DropdownMenuItem>
@@ -597,8 +589,8 @@ export default function TaskBoard({
                   <h3 className='font-semibold text-xl'>
                     {columns[status].name} Tasks
                   </h3>
-                  <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild>
+                  <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
                       <Button
                         onClick={() => {
                           setSelectedTaskStatus(status);
@@ -607,20 +599,20 @@ export default function TaskBoard({
                         size='sm'>
                         <Plus className='h-4 w-4' />
                       </Button>
-                    </SheetTrigger>
-                    <SheetContent className='flex flex-col'>
-                      <SheetHeader>
-                        <SheetTitle>
+                    </DialogTrigger>
+                    <DialogContent className='flex flex-col'>
+                      <DialogHeader>
+                        <DialogTitle>
                           {toTitleCase(selectedTaskStatus!)}
-                        </SheetTitle>
-                      </SheetHeader>
+                        </DialogTitle>
+                      </DialogHeader>
                       <ActionTask
                         closeSheet={() => setOpen(false)}
                         taskStatus={selectedTaskStatus!}
                         group={group}
                       />
-                    </SheetContent>
-                  </Sheet>
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 <Droppable droppableId={columnId}>
                   {(provided) => (
