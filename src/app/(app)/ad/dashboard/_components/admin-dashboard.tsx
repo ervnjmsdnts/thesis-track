@@ -51,7 +51,7 @@ export default function AdminDashboard({ userId }: { userId: string }) {
           </Card>
           <Card className='flex flex-col row-span-6'>
             <CardHeader>
-              <CardTitle className='text-lg'>Pending Approvals</CardTitle>
+              <CardTitle className='text-lg'>Statistics</CardTitle>
             </CardHeader>
             <CardContent className='flex flex-col flex-grow'>
               <Statistics />
