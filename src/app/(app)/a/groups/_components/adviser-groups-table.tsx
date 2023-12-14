@@ -5,6 +5,8 @@ import { columns } from '../columns';
 import { trpc } from '@/app/_trpc/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Ghost } from 'lucide-react';
+import { DataTablePagination } from '@/components/data-table-pagination';
+import TableToolbar from './table-toolbar';
 
 export default function AdviserGroupsTable({ userId }: { userId: string }) {
   const { data, isLoading } = trpc.group.getAll.useQuery();
@@ -28,6 +30,8 @@ export default function AdviserGroupsTable({ userId }: { userId: string }) {
             })),
           }))}
           columns={columns}
+          Toolbar={TableToolbar}
+          Pagination={DataTablePagination}
         />
       ) : isLoading ? (
         <Skeleton className='w-full bg-white h-full' />

@@ -124,4 +124,13 @@ export const userRouter = router({
         });
       }
     }),
+
+  updateSection: publicProcedure
+    .input(z.object({ sectionId: z.string(), userId: z.string() }))
+    .mutation(async ({ input }) => {
+      await db.user.update({
+        where: { id: input.userId },
+        data: { sectionId: input.sectionId },
+      });
+    }),
 });

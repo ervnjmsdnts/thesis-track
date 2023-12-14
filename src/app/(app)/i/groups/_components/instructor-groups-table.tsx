@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Ghost } from 'lucide-react';
 import CreateGroupDialog from './create-group-dialog';
 import TableToolbar from './table-toolbar';
+import { DataTablePagination } from '@/components/data-table-pagination';
 
 export default function InstructorGroupsTable() {
   const { data: groups, isLoading } =
@@ -34,6 +35,7 @@ export default function InstructorGroupsTable() {
           }))}
           CreateButtons={<CreateGroupDialog groupTitles={groupTitles} />}
           Toolbar={TableToolbar}
+          Pagination={DataTablePagination}
           columns={columns}
         />
       ) : isLoading ? (

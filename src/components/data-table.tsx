@@ -31,7 +31,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   Toolbar?: ComponentType<{ table: TableType<TData> }>;
-  Pagination?: ReactNode;
+  Pagination?: ComponentType<{ table: TableType<TData> }>;
   CreateButtons?: ReactNode;
   Expandable?: ReactNode;
 }
@@ -59,6 +59,7 @@ export default function DataTable<TData, TValue>({
       columnFilters,
     },
     enableRowSelection: true,
+    initialState: { pagination: { pageSize: 8, pageIndex: 0 } },
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -159,7 +160,7 @@ export default function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {Pagination}
+      {Pagination && <Pagination table={table} />}
     </div>
   );
 }

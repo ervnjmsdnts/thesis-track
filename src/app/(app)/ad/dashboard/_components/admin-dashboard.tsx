@@ -5,16 +5,27 @@ import Groups from './groups';
 import Statistics from './statistics';
 import CollectionMilestone from '@/components/collection-milestone';
 import { trpc } from '@/app/_trpc/client';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard({ userId }: { userId: string }) {
   const { data: groups } = trpc.group.getAll.useQuery();
+  const router = useRouter();
   return (
     <div className='flex flex-col h-full'>
       <div className='grid grid-cols-7 flex-grow gap-4 h-full'>
         <div className='col-span-5'>
           <Card className='h-full flex flex-col'>
             <CardHeader>
-              <CardTitle className='text-lg'>Groups</CardTitle>
+              <div className='flex items-center justify-between'>
+                <CardTitle className='text-lg'>Groups</CardTitle>
+                <Button
+                  onClick={() => router.push('/ad/groups')}
+                  variant='link'
+                  className='px-2'>
+                  See more
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className='flex-col flex flex-grow'>
               <Groups userId={userId} />

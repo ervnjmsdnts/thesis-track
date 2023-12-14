@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import UpdateRole from './_components/update-role';
 import UpdateAssignedSections from './_components/update-assigned-sections';
+import UpdateStudentSection from './_components/update-student-section';
 
 export const columns: ColumnDef<
   User & { section: Section | null; assignedSections: Section[] }
@@ -142,6 +143,12 @@ export const columns: ColumnDef<
               userId={row.original.id}
               currentRole={row.original.role!}
             />
+            {row.original.role === 'STUDENT' ? (
+              <UpdateStudentSection
+                userId={row.original.id}
+                currSectionId={row.original.sectionId!}
+              />
+            ) : null}
             {row.original.role === 'INSTRUCTOR' ? (
               <UpdateAssignedSections
                 instructorId={row.original.id}

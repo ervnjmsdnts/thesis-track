@@ -86,12 +86,12 @@ export default function EditGroupDialog({
           onSelect={(e) => e.preventDefault()}
           className='flex flex-row gap-2 items-center text-sm'>
           <Users className='w-4 h-4 text-muted-foreground' />
-          Edit Group
+          Update Group
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Group</DialogTitle>
+          <DialogTitle>Update Group</DialogTitle>
         </DialogHeader>
         <div className='flex justify-center items-center h-full w-full'>
           <div className='w-full'>
@@ -161,7 +161,7 @@ export default function EditGroupDialog({
                   {updateLoading ? (
                     <Loader2 className='w-4 h-4 animate-spin' />
                   ) : (
-                    'Edit Group'
+                    'Update Group'
                   )}
                 </Button>
               </div>

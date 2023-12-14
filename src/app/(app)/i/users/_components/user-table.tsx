@@ -4,6 +4,7 @@ import DataTable from '@/components/data-table';
 import { columns } from '../columns';
 import { trpc } from '@/app/_trpc/client';
 import UserTableToolbar from './table-toolbar';
+import { DataTablePagination } from '@/components/data-table-pagination';
 
 export default function UserTable() {
   const { data } = trpc.user.getBasedOnAssignedSection.useQuery();
@@ -19,6 +20,7 @@ export default function UserTable() {
           }))}
           columns={columns}
           Toolbar={UserTableToolbar}
+          Pagination={DataTablePagination}
         />
       ) : null}
     </div>
