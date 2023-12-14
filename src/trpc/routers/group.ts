@@ -8,6 +8,7 @@ import { resend } from '@/lib/resend';
 export const groupRouter = router({
   getAll: publicProcedure.query(async () => {
     const groups = await db.group.findMany({
+      where: { isActive: true },
       include: {
         members: { include: { section: true } },
         documents: { include: { comments: true } },
@@ -19,7 +20,7 @@ export const groupRouter = router({
 
   getBasedOnAssignedSection: privateProcedure.query(async ({ ctx }) => {
     const instructor = await db.user.findUnique({
-      where: { id: ctx.user.id as unknown as string },
+      where: { id: ctx.user.id as unknown as string, isActive: true },
       include: { assignedSections: true },
     });
 
@@ -31,6 +32,7 @@ export const groupRouter = router({
 
     const groups = await db.group.findMany({
       where: {
+        isActive: true,
         members: {
           some: {
             sectionId: {
@@ -124,6 +126,14 @@ export const groupRouter = router({
           include: { members: true },
         });
       }
+    }),
+  deleteGroup: publicProcedure
+    .input(z.object({ groupId: z.string() }))
+    .mutation(async ({ input }) => {
+      await db.group.update({
+        where: { id: input.groupId },
+        data: { isActive: false },
+      });
     }),
 
   createGroupByInstructor: privateProcedure

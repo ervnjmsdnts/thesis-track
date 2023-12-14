@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import ChangeProgressionDialog from '@/components/change-progression-dialog';
 import EditGroupDialog from './_components/edit-group-dialog';
+import DeleteGroupDialog from './_components/delete-group-dialog';
 
 export const columns: ColumnDef<
   Group & { members: (User & { section: Section | null })[] }
@@ -168,6 +169,7 @@ export const columns: ColumnDef<
                 row.original.members.find((m) => m.role === 'ADVISER')?.id
               }
             />
+            <DeleteGroupDialog groupId={row.original.id} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

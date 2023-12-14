@@ -24,6 +24,7 @@ model User {
   role             Role?
   section          Section?  @relation("PrimarySection", fields: [sectionId], references: [id])
   assignedSections Section[] @relation("Manager")
+  isActive         Boolean   @default(true)
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -43,10 +44,11 @@ model Section {
 }
 
 model Group {
-  id          String @id @unique @default(cuid())
+  id          String  @id @unique @default(cuid())
   members     User[]
   title       String
-  progression String @default("Topic Approval")
+  progression String  @default("Topic Approval")
+  isActive    Boolean @default(true)
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

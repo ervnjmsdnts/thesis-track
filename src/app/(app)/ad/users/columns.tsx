@@ -18,6 +18,7 @@ import { MoreHorizontal } from 'lucide-react';
 import UpdateRole from './_components/update-role';
 import UpdateAssignedSections from './_components/update-assigned-sections';
 import UpdateStudentSection from './_components/update-student-section';
+import DeleteUserDialog from './_components/delete-user-dialog';
 
 export const columns: ColumnDef<
   User & { section: Section | null; assignedSections: Section[] }
@@ -155,6 +156,7 @@ export const columns: ColumnDef<
                 assignedSections={row.original.assignedSections}
               />
             ) : null}
+            <DeleteUserDialog userId={row.original.id} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

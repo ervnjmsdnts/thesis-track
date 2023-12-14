@@ -6,6 +6,7 @@ import { TRPCError } from '@trpc/server';
 export const userRouter = router({
   getAll: publicProcedure.query(async () => {
     const users = await db.user.findMany({
+      where: { isActive: true },
       include: { section: true, assignedSections: true },
     });
 
@@ -26,6 +27,7 @@ export const userRouter = router({
     const users = await db.user.findMany({
       where: {
         sectionId: { in: sectionIds },
+        isActive: true,
       },
       include: { section: true },
     });
@@ -83,6 +85,15 @@ export const userRouter = router({
       await db.user.update({
         where: { id: input.userId },
         data: { role: input.role },
+      });
+    }),
+
+  deleteUser: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ input }) => {
+      await db.user.update({
+        where: { id: input.userId },
+        data: { isActive: false },
       });
     }),
 

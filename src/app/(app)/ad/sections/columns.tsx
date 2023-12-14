@@ -19,7 +19,9 @@ export const columns: ColumnDef<Section>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Name' />
     ),
-    cell: ({ row }) => <p className='font-semibold'>{row.original.name}</p>,
+    cell: ({ row }) => {
+      return <p className='font-semibold w-[600px]'>{row.original.name}</p>;
+    },
   },
   {
     id: 'actions',

@@ -43,7 +43,7 @@ export default function JoinGroup({
       <Card className='w-[600px]'>
         <CardHeader>
           <div className='flex items-center justify-between'>
-            <CardTitle>Create group</CardTitle>
+            <CardTitle>Join Group</CardTitle>
             <Button variant='link' onClick={createGroup}>
               Create a group
             </Button>
