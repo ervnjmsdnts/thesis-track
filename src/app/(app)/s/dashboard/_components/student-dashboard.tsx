@@ -496,7 +496,7 @@ export default function StudentDashboard({
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <AdviserInviteButton />
+                    {/* <AdviserInviteButton /> */}
                   </div>
                 </div>
               </CardHeader>
